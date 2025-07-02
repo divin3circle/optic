@@ -1,7 +1,4 @@
 import { call, IDL, init, Principal, query, update, msgCaller } from "azle";
-import * as bitcoin from "bitcoinjs-lib";
-import { Network, networks, Transaction } from "bitcoinjs-lib";
-import { Buffer } from "buffer";
 import {
   bitcoin_get_balance_args,
   bitcoin_get_balance_result,
@@ -16,7 +13,6 @@ import {
   bitcoin_address,
   satoshi,
 } from "azle/canisters/management/idl";
-import { canisterSelf } from "./canisterSelf";
 import { UpdateBalanceArgs, UpdateBalanceResult } from "./minterTypes";
 import {
   Account,
@@ -74,6 +70,8 @@ const Proposal = IDL.Record({
     quorumBps: IDL.Nat64,
   }),
   votes: IDL.Float32,
+  expiration: IDL.Int,
+  status: IDL.Text,
 });
 
 type Proposal = {
@@ -87,6 +85,8 @@ type Proposal = {
     quorumBps: number;
   };
   votes: number;
+  expiration: number;
+  status: string;
 };
 
 const Balances = IDL.Record({
@@ -129,17 +129,68 @@ type Bridge = {
 /**CANISTER CLASSES */
 
 export default class {
+  /************
+   * OPTIC STATES
+   * **********
+   */
+
   /**
-   * Maps of the canister's state.
+   * A mapping of user principal to their
+   * btc deposit address.
+   * Used to track user's btc deposit addresses,
+   * avoiding regenerating addresses for the same user.
    */
 
   deposits: Map<Principal, string> = new Map();
+
+  /**
+   * A mapping of user principal to their
+   * positions in various pools. Useful for
+   * tracking user's positions and calculating
+   * their rewards and app fees
+   */
+
   positions: Map<Principal, Position[]> = new Map();
+
+  /**
+   * A mapping of pool id to their oracle feed.
+   * Used to track the oracle feed for each pool.
+   * Important for deciding when to rebalance pools
+   * for users to earn rewards.
+   */
+
   feeds: Map<string, OracleFeed> = new Map();
+
+  /**
+   * A mapping of user principal to the
+   * staked amount of ckBTC they have in
+   * the protocol. Important for calculating
+   * user's voting power in proposals.
+   */
+
   stakes: Map<Principal, number> = new Map();
+
+  /**
+   * A mapping of proposal id to the proposal.
+   * Used to track the proposal and its votes.
+   * Important for tracking the status of proposals
+   */
+
   proposal: Map<string, Proposal> = new Map();
-  balances: Map<string, Balances> = new Map();
+
+  /**
+   * A mapping of user principal to their
+   * bridges. Used to track the bridges from btc to ckBTC.
+   * Important for tracking the amount of btc deposited
+   * by a user and the amount of ckBTC they have received.
+   */
+
   bridges: Map<Principal, Bridge[]> = new Map();
+
+  /************
+   * OPTIC FUNCTIONS
+   * **********
+   */
 
   /**
    * Get caller's principal.
@@ -191,6 +242,7 @@ export default class {
 
   /**
    * Get all deposit addresses
+   * @returns All deposit addresses
    */
 
   @query([], IDL.Vec(IDL.Text))
@@ -324,7 +376,7 @@ function getMinterPrincipal(): string {
   return "ll5dv-z7777-77777-aaaca-cai"; // minter
 }
 
-export async function getUserBtcDepositAddress(
+async function getUserBtcDepositAddress(
   userPrincipal: string,
   subaccount?: Uint8Array
 ): Promise<string> {
