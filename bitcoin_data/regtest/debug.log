@@ -4036,3 +4036,20 @@
 2025-07-02T18:24:34Z Potential stale tip detected, will try using extra outbound peer (last tip update: 4941 seconds ago)
 2025-07-02T18:35:04Z Potential stale tip detected, will try using extra outbound peer (last tip update: 5571 seconds ago)
 2025-07-02T18:45:34Z Potential stale tip detected, will try using extra outbound peer (last tip update: 6201 seconds ago)
+2025-07-02T18:56:04Z Potential stale tip detected, will try using extra outbound peer (last tip update: 6831 seconds ago)
+2025-07-02T19:04:50Z tor: Thread interrupt
+2025-07-02T19:04:50Z addcon thread exit
+2025-07-02T19:04:50Z torcontrol thread exit
+2025-07-02T19:04:50Z msghand thread exit
+2025-07-02T19:04:50Z net thread exit
+2025-07-02T19:04:50Z Shutdown: In progress...
+2025-07-02T19:04:50Z opencon thread exit
+2025-07-02T19:04:50Z DumpAnchors: Flush 0 outbound block-relay-only peer addresses to anchors.dat started
+2025-07-02T19:04:50Z DumpAnchors: Flush 0 outbound block-relay-only peer addresses to anchors.dat completed (0.01s)
+2025-07-02T19:04:50Z scheduler thread exit
+2025-07-02T19:04:50Z Writing 0 mempool transactions to file...
+2025-07-02T19:04:50Z Writing 0 unbroadcast transactions to file.
+2025-07-02T19:04:50Z Dumped mempool: 0.000s to copy, 0.009s to dump, 27 bytes dumped to file
+2025-07-02T19:04:50Z Flushed fee estimates to fee_estimates.dat.
+2025-07-02T19:04:50Z [mywallet] Releasing wallet mywallet..
+2025-07-02T19:04:50Z Shutdown: done
