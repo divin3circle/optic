@@ -16,6 +16,13 @@ import {
   bitcoin_address,
   satoshi,
 } from "azle/canisters/management/idl";
+import { canisterSelf } from "./canisterSelf";
+import { UpdateBalanceArgs, UpdateBalanceResult } from "./minterTypes";
+import {
+  Account,
+  TransferArgs,
+  TransferResult,
+} from "azle/canisters/icrc_1/idl";
 
 /**CONSTANTS */
 
@@ -96,6 +103,13 @@ type Balances = {
   updatedAt: number;
 };
 
+const getBtcAddressArgs = IDL.Record({
+  owner: IDL.Principal,
+  subaccount: IDL.Opt(IDL.Vec(IDL.Nat8)),
+});
+
+const getBtcAddressResult = IDL.Text;
+
 const Bridge = IDL.Record({
   address: IDL.Text,
   utxosAddress: IDL.Text,
@@ -170,31 +184,18 @@ export default class {
 
   @update([], bitcoin_address)
   async createDepositAddress(): Promise<bitcoin_address> {
-    const caller = msgCaller();
-    const derivationPath = principalToDerivationPath(caller);
-    const result = await call<[ecdsa_public_key_args], ecdsa_public_key_result>(
-      "aaaaa-aa",
-      "ecdsa_public_key",
-      {
-        paramIdlTypes: [ecdsa_public_key_args],
-        returnIdlType: ecdsa_public_key_result,
-        args: [
-          {
-            canister_id: [],
-            derivation_path: derivationPath,
-            key_id: {
-              curve: { secp256k1: null },
-              name: "dfx_test_key",
-            },
-          },
-        ],
-      }
-    );
-    const pubkey = result.public_key;
-    const address = publicKeyToP2pkhAddress({ regtest: null }, pubkey);
-    this.deposits.set(caller, address);
-    this.bridges.set(caller, []);
-    return address;
+    const result = await getUserBtcDepositAddress(msgCaller().toString());
+    this.deposits.set(msgCaller(), result);
+    return result;
+  }
+
+  /**
+   * Get all deposit addresses
+   */
+
+  @query([], IDL.Vec(IDL.Text))
+  async getDepositAddresses(): Promise<string[]> {
+    return Array.from(this.deposits.values());
   }
 
   /**
@@ -203,7 +204,6 @@ export default class {
    */
   @update([IDL.Text], bitcoin_get_utxos_result)
   async getUtxos(address: string): Promise<bitcoin_get_utxos_result> {
-    const caller = msgCaller();
     const result = await call<
       [bitcoin_get_utxos_args],
       bitcoin_get_utxos_result
@@ -262,9 +262,51 @@ export default class {
   }
 
   /**
-   * BridgeHandler - Allows a user to request deposit addresses, and
-   * simulate minting ckBTC when BTC is detected.
+   * Update user ckBTC balance
+   * @returns The result of the update balance call.
    */
+
+  @update([], UpdateBalanceResult)
+  async updateBalance(): Promise<UpdateBalanceResult> {
+    const updateBalanceResult: UpdateBalanceResult = await call<
+      [UpdateBalanceArgs],
+      UpdateBalanceResult
+    >(getMinterPrincipal(), "update_balance", {
+      paramIdlTypes: [UpdateBalanceArgs],
+      returnIdlType: UpdateBalanceResult,
+      args: [
+        {
+          owner: [msgCaller()],
+          subaccount: [],
+        },
+      ],
+    });
+
+    return updateBalanceResult;
+  }
+
+  /**
+   * Get the ckBTC balance of a user.
+   * @returns The ckBTC balance of the user.
+   */
+
+  @update([], IDL.Nat64)
+  async getCkBTCBalance(): Promise<bigint> {
+    return await call<[Account], bigint>(
+      getCkBtcPrincipal(),
+      "icrc1_balance_of",
+      {
+        paramIdlTypes: [Account],
+        returnIdlType: IDL.Nat,
+        args: [
+          {
+            owner: msgCaller(),
+            subaccount: [],
+          },
+        ],
+      }
+    );
+  }
 }
 
 /**HELPERS */
@@ -296,4 +338,41 @@ function determineNetwork(network: bitcoin_network): Network {
 
 function sumUtxos(utxos: bitcoin_get_utxos_result): bigint {
   return utxos.utxos.reduce((acc, utxo) => acc + utxo.value, 0n);
+}
+
+function padPrincipalWithZeros(blob: Uint8Array): Uint8Array {
+  let newUin8Array = new Uint8Array(32);
+  newUin8Array.set(blob);
+  return newUin8Array;
+}
+
+function getCkBtcPrincipal(): string {
+  // TODO: change once ready for mainnet
+  return "lqy7q-dh777-77777-aaaaq-cai"; // ckbtc ledger
+}
+function getMinterPrincipal(): string {
+  // TODO: change once ready for mainnet
+  return "ll5dv-z7777-77777-aaaca-cai"; // minter
+}
+
+export async function getUserBtcDepositAddress(
+  userPrincipal: string,
+  subaccount?: Uint8Array
+): Promise<string> {
+  const args = {
+    owner: Principal.fromText(userPrincipal),
+    subaccount: subaccount ? [subaccount] : [],
+  };
+
+  const btcAddress = await call<[typeof args], string>(
+    getMinterPrincipal(),
+    "get_btc_address",
+    {
+      paramIdlTypes: [getBtcAddressArgs],
+      returnIdlType: getBtcAddressResult,
+      args: [args],
+    }
+  );
+
+  return btcAddress;
 }
