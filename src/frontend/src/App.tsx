@@ -5,13 +5,13 @@ function App() {
   const [greeting, setGreeting] = useState("");
 
   function handleSubmit(event: any) {
-    event.preventDefault();
-    const name = event.target.elements.name.value;
-    const backend = createActor(canisterId);
-    backend.greet(name).then((greeting: any) => {
-      setGreeting(greeting);
-    });
-    return false;
+    // event.preventDefault();
+    // const name = event.target.elements.name.value;
+    // const backend = createActor(canisterId);
+    // backend.greet(name).then((greeting: any) => {
+    //   setGreeting(greeting);
+    // });
+    // return false;
   }
 
   return (

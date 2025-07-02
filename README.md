@@ -1,76 +1,246 @@
-# ICP Development Environment with Azle and React
+# Optic - On‑Chain Bitcoin DeFi Hub for ICP
 
-This template gives you everything you need to build a full-stack Web3 application on the [Internet Computer](https://internetcomputer.org/).
-It includes a frontend built with Vite and React, and a backend written in JS/TS (Azle).
+A fully on‑chain Bitcoin‑DeFi protocol for the ICP Hackathon (DeFi & Bitcoin track), built end‑to‑end in TypeScript with [Azle](https://demergent-labs.github.io/azle/) canisters and a React/React Native frontend.
 
-## Get started with one click:
-### Locally:
+**Optic** lets users bridge BTC → ckBTC, earn optimized yields, borrow ICP‑assets, and govern via staked ckBTC. All logic is on‑chain, with a modern, wallet‑connected frontend.
 
-Make sure you have you have the latest version of Docker (e.g. >25) and VS Code installed and running, then click the button below
+---
 
-[![Open locally in Dev Containers](https://img.shields.io/static/v1?label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/fxgst/azle-react)
+## 🚀 Features
 
-### In your browser:
+### 🔗 Trustless BTC Bridging (DFINITY ckBTC Bridge)
 
-In Gitpod 
+- **Per-user Bitcoin deposit addresses** via the `BridgeHandler` canister.
+- **Automatic minting of ckBTC**: Users send BTC, bridge mints ckBTC to their principal using the [DFINITY ckBTC bridge](https://internetcomputer.org/docs/current/developer-docs/integrations/bitcoin/ckbtc/).
 
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/fxgst/azle-react/)
+### 📈 Yield Aggregation & Auto‑Rebalancing (ICPSwap Integration)
 
-or GitHub Codespaces
+- **Oracle canister** fetches real-time APRs for each registered pool, including [ICPSwap](https://icpswap.com/) pools.
+- **Pool Registry** tracks all available pools (ICPSwap and custom).
+- **YieldRouter** deposits ckBTC into the highest-APR vault/pool, records user positions.
+- **Auto-rebalancing**: Hourly timer triggers `checkAndRebalance()`, migrating funds if a better APR is found.
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/fxgst/azle-react/?quickstart=1)
+### 🗳️ Governance via ckBTC Staking
 
+- **Stake ckBTC** in the `Governance` canister for voting power.
+- **Create/vote/tally proposals** to change protocol parameters (rebalance threshold, fees, quorum, etc.).
+- **On-pass proposal callbacks** update YieldRouter or Pool Registry.
 
-## 🚀 Develop
+### 🧩 Modular On‑Chain Data Models (Azle + StableBTreeMap)
 
-When the editor opened, run the following commands to start a local ICP node and deploy the canister smart contract:
+- **BridgeHandler**: `deposits: Map<string, Principal>`
+- **YieldRouter**: `positions: Map<Principal, Position[]>`
+- **Oracle**: `feeds: Map<PoolId, OracleFeed>`
+- **Governance**: `staked: Map<Principal, Nat>`, `proposals: Map<ProposalId, Proposal>`, `votes: Map<ProposalId, Map<Principal, Bool>>`
+- **Pool Registry**: `pools: Map<PoolId, Pool>`
+- **Portfolio**: `balancesCache: Map<Principal, Balances>`
 
-```bash
-npm install # Install dependencies
-dfx start --clean # Start a local ICP node
-# In a new terminal window:
-dfx deploy # Deploy smart contract locally
+### 🖥️ Frontend Flows (React)
+
+- **Connect Wallet**: Plug / Stoic, fetch balances via Portfolio canister.
+- **Bridge BTC**: Show QR/bitcoin: deep-link, poll for ckBTC balance.
+- **Deposit ckBTC**: Call `YieldRouter.deposit()`, UI shows active positions.
+- **Auto-Rebalance**: UI updates via events/polling, toasts for rebalances.
+- **Governance**: Stake, propose, vote, view status, trigger protocol changes.
+- **Withdraw**: `YieldRouter.withdraw()`, optional burn + bridge-back to BTC.
+
+### 🤖 (Optional) InfoAgent Canister
+
+- On-chain LLM answers queries like "What's my APR?" by pulling live data from Oracle, Portfolio, and Governance.
+
+---
+
+## 🏗️ Architecture
+
+```js
+// Coming soon
 ```
 
-If you are developing in Github Codespaces, run `./canister_urls.py` to get the correct canister URLs.
-For Gitpod, use the URLs that start with `http://127.0.0.1`.
+---
 
-To interact with the backend canister smart contract, you can use `dfx` on the command line:
+## 📦 Data Models
 
-```bash
-dfx canister call backend greet '("Dom")' # Call the greet query function with the argument "Dom"
-# or 
-dfx canister call backend setMessage '("GM")' # Call the setMessage update function
+```ts
+type Position = {
+  poolId: string;
+  amount: bigint; // in smallest ckBTC units
+  aprAtDeposit: number; // percentage
+  timestamp: bigint; // Unix time
+  lastRebalance: bigint; // Unix time
+};
+
+type OracleFeed = {
+  poolId: string;
+  apr: number;
+  updatedAt: bigint;
+};
+
+type Pool = {
+  id: string;
+  name: string;
+  canisterId: Principal;
+  enabled: boolean;
+};
+
+type ProposalParams = {
+  rebalanceThreshold: number; // APR diff %
+  feeRateBps: number; // basis points
+  minStake: bigint; // smallest units
+  votingPeriodSec: bigint;
+  quorumBps: bigint;
+};
+
+type Proposal = {
+  id: string;
+  proposer: Principal;
+  params: ProposalParams;
+  status: "Open" | "Passed" | "Failed";
+  votes: Map<Principal, boolean>;
+};
+
+type Balances = {
+  ckBTC: number;
+  BTC: number;
+  ICP: number;
+  updatedAt: bigint;
+};
 ```
 
-To redeploy the smart contract, run `dfx deploy` again.
+---
 
-When ready, run `dfx deploy --ic` to deploy your application to the ICP mainnet.
-The command will print a different canister URL for mainnet, ending in `.icp0.io`.
-You can make calls to the smart contract on mainnet just like to the local one!
+## ⚙️ Canister Overview
 
-## 🛠️ Technology Stack
+| Canister          | Key Methods                                                                                                          |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------- |
+| **BridgeHandler** | `createDepositAddress(principal)`, `updateMint(btcAddress, amountE8)`                                                |
+| **Oracle**        | `updateFeed(poolId, apr)`, `getFeeds()`                                                                              |
+| **YieldRouter**   | `deposit(principal, amount)`, `withdraw(principal, amount)`, `checkAndRebalance()`                                   |
+| **Portfolio**     | `getBalances(principal)`, `getPositions(principal)`                                                                  |
+| **Governance**    | `stakeCkBTC(principal, amount)`, `unstakeCkBTC(principal, amount)`, `createProposal(...)`, `vote(...)`, `tally(...)` |
+| **Pool Registry** | `addPool(pool)`, `removePool(id)`, `togglePool(id, enabled)`                                                         |
+| **InfoAgent**     | `query(principal, prompt)`                                                                                           |
 
-- [Azle CDK](https://demergent-labs.github.io/azle/): the Canister Development Kit for JS/TS
-- [Vite](https://vitejs.dev/): high-performance tooling for front-end web development
-- [React](https://reactjs.org/): a component-based UI library
-- [TypeScript](https://www.typescriptlang.org/): JavaScript extended with syntax for types
+---
 
-## 📚 Documentation
+## 🏦 ICPSwap & Pool Registry Integration
 
-- [Azle book](https://demergent-labs.github.io/azle/the_azle_book.html)
-- [Internet Computer docs](https://internetcomputer.org/docs/current/developer-docs/ic-overview)
-- [Internet Computer wiki](https://wiki.internetcomputer.org/)
-- [Internet Computer forum](https://forum.dfinity.org/)
-- [Vite developer docs](https://vitejs.dev/guide/)
-- [React quick start guide](https://react.dev/learn)
-- [`dfx.json` reference schema](https://internetcomputer.org/docs/current/references/dfx-json-reference/)
-- [Developer Experience Feedback Board](https://dx.internetcomputer.org/)
+- The **Pool Registry** canister tracks all available pools, including those on [ICPSwap](https://icpswap.com/).
+- The **Oracle** canister fetches APRs from ICPSwap and other sources.
+- The **YieldRouter** canister routes user deposits to the highest-yielding pool, including ICPSwap pools, and records positions.
+- This enables seamless, on-chain yield optimization across the ICP DeFi ecosystem.
 
-## 💡 Tips and Tricks
+---
 
-- If you get errors accessing the canister URLs developing remotely, try running `./canister_urls.py` to get the correct URLs.
+## 🪙 DFINITY ckBTC Bridge Integration
 
-- Run `npm run dev` to see the frontend update live as you make changes.
+- The **BridgeHandler** canister issues per-user Bitcoin deposit addresses.
+- When a user sends BTC to their address, the canister tracks the deposit and triggers ckBTC minting via the [DFINITY ckBTC bridge](https://internetcomputer.org/docs/current/developer-docs/integrations/bitcoin/ckbtc/).
+- Users receive ckBTC directly to their principal, which can then be used in DeFi flows.
 
-- If you get an error "You installed esbuild for another platform than the one you're currently using.", remove the `node_modules` folder and run `npm install` again.
+---
+
+## 🛠 Getting Started (Local Dev/Test)
+
+1. **Install Dependencies**
+
+   ```bash
+   cd backend
+   npm install
+   cd ../frontend
+   npm install
+   ```
+
+2. **Configure `dfx.json`**
+
+   - Add canister entries for each actor with their Azle builds.
+   - Enable Bitcoin integration:
+     ```json
+     "defaults": {
+       "bitcoin": {
+         "enabled": true,
+         "nodes": ["127.0.0.1:18444"]
+       }
+     }
+     ```
+
+3. **Run Bitcoin Regtest Node**
+
+   ```bash
+   bitcoind -conf=$(pwd)/bitcoin_data/bitcoin.conf -datadir=$(pwd)/bitcoin_data --port=18444
+   ```
+
+4. **Run Local Testnet**
+
+   ```bash
+   dfx start --background --enable-bitcoin --bitcoin-node 127.0.0.1:18444
+   dfx deploy --network=local
+   ```
+
+5. **Start Frontend**
+
+   ```bash
+   cd ../frontend
+   npm run dev
+   ```
+
+6. **Bridge BTC on Regtest**
+   - Use a Bitcoin regtest wallet to send BTC to your deposit address.
+   - Confirm ckBTC balance appears in the dashboard.
+
+---
+
+## 🧑‍💻 Tech Stack
+
+- **Backend:** [Azle (TypeScript)](https://demergent-labs.github.io/azle/) canisters on ICP
+- **Frontend:** React (Web & Mobile)
+- **Bridge & Oracle:** [DFINITY ckBTC bridge](https://internetcomputer.org/docs/current/developer-docs/integrations/bitcoin/ckbtc/), custom HTTP outcalls, or ChainFusion oracles
+- **Pool Data:** [ICPSwap](https://icpswap.com/)
+
+---
+
+## 📚 References & Documentation
+
+- [Azle Docs](https://demergent-labs.github.io/azle/)
+- [DFINITY Bitcoin & ckBTC Integration](https://internetcomputer.org/docs/current/developer-docs/integrations/bitcoin/ckbtc/)
+- [ICPSwap](https://icpswap.com/)
+- [ICP Bitcoin Developer Docs](https://internetcomputer.org/docs/build-on-btc/)
+
+---
+
+## 🚢 Deployment
+
+- **Mainnet:**
+  ```bash
+  dfx deploy --network=ic
+  ```
+- **CI/CD:**  
+  GitHub Actions builds Azle canisters, runs tests, and deploys to `--network=local` or `--network=ic`.
+
+---
+
+## 🗺️ Roadmap
+
+- Add lending engine for ICP‑asset borrowing against ckBTC collateral
+- Integrate real‑world BTC DeFi platforms via bridge outcalls
+- Launch mobile companion app in React Native
+- Expand InfoAgent with richer on‑chain analytics
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repo
+2. Create your feature branch: `git checkout -b feature/XYZ`
+3. Commit your changes: `git commit -am 'Add XYZ'`
+4. Push to branch: `git push origin feature/XYZ`
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+MIT © Your Team Name
+
+```
+
+```
