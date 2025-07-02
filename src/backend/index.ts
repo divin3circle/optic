@@ -311,39 +311,8 @@ export default class {
 
 /**HELPERS */
 
-function principalToDerivationPath(principal: Principal): Uint8Array[] {
-  return [Uint8Array.from(principal.toUint8Array())];
-}
-
-function publicKeyToP2pkhAddress(
-  network: bitcoin_network,
-  publicKey: Uint8Array
-): string {
-  const { address } = bitcoin.payments.p2pkh({
-    pubkey: Buffer.from(publicKey),
-    network: determineNetwork(network),
-  });
-  if (address === undefined) {
-    throw new Error("Unable to get address from the canister");
-  }
-  return address;
-}
-
-function determineNetwork(network: bitcoin_network): Network {
-  if ("mainnet" in network) return networks.bitcoin;
-  if ("testnet" in network) return networks.testnet;
-  if ("regtest" in network) return networks.regtest;
-  throw new Error(`Unknown Network: ${JSON.stringify(network)}`);
-}
-
 function sumUtxos(utxos: bitcoin_get_utxos_result): bigint {
   return utxos.utxos.reduce((acc, utxo) => acc + utxo.value, 0n);
-}
-
-function padPrincipalWithZeros(blob: Uint8Array): Uint8Array {
-  let newUin8Array = new Uint8Array(32);
-  newUin8Array.set(blob);
-  return newUin8Array;
 }
 
 function getCkBtcPrincipal(): string {
