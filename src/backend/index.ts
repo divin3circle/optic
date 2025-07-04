@@ -28,6 +28,8 @@ const BITCOIN_TESTNET_MANAGER_CANISTER_ID = Principal.fromText(
 const BITCOIN_API_CYCLE_COST = 100_000_000n;
 const BITCOIN_BASE_TRANSACTION_COST = 5_000_000_000n;
 const BITCOIN_CYCLE_COST_PER_TRANSACTION_BYTE = 20_000_000n;
+const NODE_INDEX_CANISTER_ICPSWAP = "ggzvv-5qaaa-aaaag-qck7a-cai";
+const POOL_STORAGE_CANISTER = "xmiu5-jqaaa-aaaag-qbz7q-cai";
 
 /**TYPES & IDLs */
 
@@ -89,20 +91,6 @@ type Proposal = {
   status: string;
 };
 
-const Balances = IDL.Record({
-  ckBTC: IDL.Float32,
-  BTC: IDL.Float32,
-  ICP: IDL.Float32,
-  updatedAt: IDL.Int,
-});
-
-type Balances = {
-  ckBTC: number;
-  BTC: number;
-  ICP: number;
-  updatedAt: number;
-};
-
 const getBtcAddressArgs = IDL.Record({
   owner: IDL.Principal,
   subaccount: IDL.Opt(IDL.Vec(IDL.Nat8)),
@@ -123,6 +111,66 @@ type Bridge = {
   utxosAddress: string;
   btcAmount: number;
   ckBTCAmount: number;
+  timestamp: number;
+};
+
+const PublicPoolOverView = IDL.Record({
+  id: IDL.Nat,
+  token0TotalVolume: IDL.Float64,
+  volumeUSD1d: IDL.Float64,
+  volumeUSD7d: IDL.Float64,
+  token0Id: IDL.Text,
+  token1Id: IDL.Text,
+  token1Volume24H: IDL.Float64,
+  totalVolumeUSD: IDL.Float64,
+  sqrtPrice: IDL.Float64,
+  pool: IDL.Text,
+  tick: IDL.Int,
+  liquidity: IDL.Nat,
+  token1Price: IDL.Float64,
+  feeTier: IDL.Nat,
+  token1TotalVolume: IDL.Float64,
+  volumeUSD: IDL.Float64,
+  feesUSD: IDL.Float64,
+  token0Volume24H: IDL.Float64,
+  token1Standard: IDL.Text,
+  txCount: IDL.Nat,
+  token1Decimals: IDL.Float64,
+  token0Standard: IDL.Text,
+  token0Symbol: IDL.Text,
+  token0Decimals: IDL.Float64,
+  token0Price: IDL.Float64,
+  token1Symbol: IDL.Text,
+  timestamp: IDL.Int,
+});
+
+type PublicPoolOverView = {
+  id: bigint;
+  token0TotalVolume: number;
+  volumeUSD1d: number;
+  volumeUSD7d: number;
+  token0Id: string;
+  token1Id: string;
+  token1Volume24H: number;
+  totalVolumeUSD: number;
+  sqrtPrice: number;
+  pool: string;
+  tick: bigint;
+  liquidity: bigint;
+  token1Price: number;
+  feeTier: bigint;
+  token1TotalVolume: number;
+  volumeUSD: number;
+  feesUSD: number;
+  token0Volume24H: number;
+  token1Standard: string;
+  txCount: bigint;
+  token1Decimals: number;
+  token0Standard: string;
+  token0Symbol: string;
+  token0Decimals: number;
+  token0Price: number;
+  token1Symbol: string;
   timestamp: number;
 };
 
@@ -193,6 +241,18 @@ export default class {
    */
 
   /**
+   * Create a deposit address for a user.
+   * @returns The Bitcoin address of the user.
+   */
+
+  @update([], bitcoin_address)
+  async createDepositAddress(): Promise<bitcoin_address> {
+    const result = await getUserBtcDepositAddress(msgCaller().toString());
+    this.deposits.set(msgCaller(), result);
+    return result;
+  }
+
+  /**
    * Get caller's principal.
    * @returns The caller's principal.
    */
@@ -229,25 +289,29 @@ export default class {
   }
 
   /**
-   * Create a deposit address for a user.
-   * @returns The Bitcoin address of the user.
-   */
-
-  @update([], bitcoin_address)
-  async createDepositAddress(): Promise<bitcoin_address> {
-    const result = await getUserBtcDepositAddress(msgCaller().toString());
-    this.deposits.set(msgCaller(), result);
-    return result;
-  }
-
-  /**
    * Get all deposit addresses
-   * @returns All deposit addresses
+   * @returns All deposit addresses and their corresponding user principal
    */
 
-  @query([], IDL.Vec(IDL.Text))
-  async getDepositAddresses(): Promise<string[]> {
-    return Array.from(this.deposits.values());
+  @query(
+    [],
+    IDL.Vec(
+      IDL.Record({
+        address: IDL.Text,
+        principal: IDL.Principal,
+      })
+    )
+  )
+  async getDepositAddresses(): Promise<
+    {
+      address: string;
+      principal: Principal;
+    }[]
+  > {
+    return Array.from(this.deposits.entries()).map(([principal, address]) => ({
+      address,
+      principal,
+    }));
   }
 
   /**
@@ -283,34 +347,6 @@ export default class {
   async getBridges(): Promise<Bridge[]> {
     const caller = msgCaller();
     return this.bridges.get(caller) ?? [];
-  }
-
-  /**
-   * Get btc amount deposited by a user(utxos)
-   * @param address - The Bitcoin address to get the balance of.
-   * @returns The btc amount deposited by the user.
-   */
-
-  @update([IDL.Text], IDL.Float32)
-  async getBtcAmountDeposited(address: string): Promise<number> {
-    const result = await call<
-      [bitcoin_get_utxos_args],
-      bitcoin_get_utxos_result
-    >("aaaaa-aa", "bitcoin_get_utxos", {
-      paramIdlTypes: [bitcoin_get_utxos_args],
-      returnIdlType: bitcoin_get_utxos_result,
-      args: [
-        {
-          address,
-          filter: [],
-          network: { regtest: null },
-        },
-      ],
-      cycles: BITCOIN_API_CYCLE_COST,
-    });
-    const totalbtc = sumUtxos(result);
-    const totalckbtc = Number(totalbtc) / 100000000;
-    return totalckbtc;
   }
 
   /**
@@ -359,6 +395,20 @@ export default class {
       }
     );
   }
+
+  /**
+   * Get all user positions and update the positions map
+   * @notice This function is called by the user
+   * @returns The positions of the user.
+   */
+
+  @update([], IDL.Vec(Position))
+  async getAllUserPositions(): Promise<Position[]> {
+    const caller = msgCaller();
+    const positions = Array.from(this.positions.get(caller) ?? []);
+    this.positions.set(caller, positions);
+    return positions;
+  }
 }
 
 /**HELPERS */
@@ -373,7 +423,7 @@ function getCkBtcPrincipal(): string {
 }
 function getMinterPrincipal(): string {
   // TODO: change once ready for mainnet
-  return "ll5dv-z7777-77777-aaaca-cai"; // minter
+  return "umunu-kh777-77774-qaaca-cai"; // minter
 }
 
 async function getUserBtcDepositAddress(
