@@ -488,7 +488,7 @@ function sumUtxos(utxos: bitcoin_get_utxos_result): bigint {
 
 function getCkBtcPrincipal(): string {
   // TODO: change once ready for mainnet
-  return "lqy7q-dh777-77777-aaaaq-cai"; // ckbtc ledger
+  return "l62sy-yx777-77777-aaabq-cai"; // ckbtc ledger
 }
 function getMinterPrincipal(): string {
   // TODO: change once ready for mainnet
