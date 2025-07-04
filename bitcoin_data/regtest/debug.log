@@ -4645,3 +4645,5 @@
 2025-07-04T07:34:09Z Potential stale tip detected, will try using extra outbound peer (last tip update: 40904 seconds ago)
 2025-07-04T07:44:39Z Potential stale tip detected, will try using extra outbound peer (last tip update: 41534 seconds ago)
 2025-07-04T07:55:09Z Potential stale tip detected, will try using extra outbound peer (last tip update: 42164 seconds ago)
+2025-07-04T07:57:56Z Flushed fee estimates to fee_estimates.dat.
+2025-07-04T08:05:39Z Potential stale tip detected, will try using extra outbound peer (last tip update: 42794 seconds ago)

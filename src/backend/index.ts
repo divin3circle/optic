@@ -33,6 +33,36 @@ const POOL_STORAGE_CANISTER = "xmiu5-jqaaa-aaaag-qbz7q-cai";
 
 /**TYPES & IDLs */
 
+const Agent = IDL.Record({
+  name: IDL.Text,
+  description: IDL.Text,
+  image: IDL.Text,
+});
+
+const User = IDL.Record({
+  principal: IDL.Principal,
+  username: IDL.Text,
+  theme: IDL.Text,
+  agent: Agent,
+  updatedAt: IDL.Int,
+  createdAt: IDL.Int,
+});
+
+type Agent = {
+  name: string;
+  description: string;
+  image: string;
+};
+
+type User = {
+  principal: Principal;
+  username: string;
+  theme: "light" | "Dark";
+  agent: Agent;
+  updatedAt: number;
+  createdAt: number;
+};
+
 const Position = IDL.Record({
   poolId: IDL.Text,
   amount: IDL.Float64,
@@ -184,6 +214,17 @@ export default class {
 
   /**
    * A mapping of user principal to their
+   * user object.
+   * Used to track user's information,
+   * avoiding regenerating user objects for the same user.
+   * @notice This is the main user object that is used to track
+   * all user information.
+   */
+
+  users: Map<Principal, User> = new Map();
+
+  /**
+   * A mapping of user principal to their
    * btc deposit address.
    * Used to track user's btc deposit addresses,
    * avoiding regenerating addresses for the same user.
@@ -239,6 +280,34 @@ export default class {
    * OPTIC FUNCTIONS
    * **********
    */
+
+  /**
+   * Create a user object for a user.
+   * @param principal - The principal of the user.
+   * @param username - The username of the user.
+   * @param theme - The theme of the user.
+   * @param agent - The agent of the user.
+   */
+
+  @update([IDL.Text, IDL.Text, IDL.Text, Agent], User)
+  async createUser(
+    principal: Principal,
+    username: string,
+    theme: "light" | "Dark",
+    agent: Agent
+  ): Promise<User> {
+    const caller = msgCaller();
+    const user: User = {
+      principal: caller,
+      username,
+      theme,
+      agent,
+      updatedAt: Date.now(),
+      createdAt: Date.now(),
+    };
+    this.users.set(caller, user);
+    return user;
+  }
 
   /**
    * Create a deposit address for a user.
