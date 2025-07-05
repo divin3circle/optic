@@ -5050,3 +5050,4 @@
 2025-07-05T13:53:13Z CreateNewBlock(): block weight: 892 txs: 0 fees: 0 sigops 400
 2025-07-05T13:53:13Z Saw new header hash=74c685ce717ba0fa5be7adeca8fea919de58966565b1ead3bae52b6b9055ca21 height=1313
 2025-07-05T13:53:13Z UpdateTip: new best=74c685ce717ba0fa5be7adeca8fea919de58966565b1ead3bae52b6b9055ca21 height=1313 version=0x20000000 log2_work=11.359750 tx=1314 date='2025-07-05T13:53:29Z' progress=1.000000 cache=0.3MiB(101txo)
+2025-07-05T13:58:37Z Flushed fee estimates to fee_estimates.dat.
