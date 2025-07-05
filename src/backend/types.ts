@@ -34,18 +34,26 @@ type User = {
 
 const Position = IDL.Record({
   poolId: IDL.Text,
-  amount: IDL.Float64,
-  aprAtDeposit: IDL.Float32,
+  positionId: IDL.Text,
+  token0: IDL.Text,
+  token1: IDL.Text,
+  token0Amount: IDL.Float64,
+  token1Amount: IDL.Float64,
   timestamp: IDL.Int,
-  lastRebalance: IDL.Int,
+  status: IDL.Text,
+  share: IDL.Float64,
 });
 
 type Position = {
   poolId: string;
-  amount: number;
-  aprAtDeposit: number;
+  positionId: string;
+  token0: string;
+  token1: string;
+  token0Amount: number;
+  token1Amount: number;
   timestamp: number;
-  lastRebalance: number;
+  status: string;
+  share: number;
 };
 
 const OracleFeed = IDL.Record({
@@ -113,65 +121,65 @@ type Bridge = {
   timestamp: number;
 };
 
-const PublicPoolOverView = IDL.Record({
-  id: IDL.Nat,
-  token0TotalVolume: IDL.Float64,
-  volumeUSD1d: IDL.Float64,
-  volumeUSD7d: IDL.Float64,
-  token0Id: IDL.Text,
-  token1Id: IDL.Text,
-  token1Volume24H: IDL.Float64,
-  totalVolumeUSD: IDL.Float64,
-  sqrtPrice: IDL.Float64,
-  pool: IDL.Text,
-  tick: IDL.Int,
-  liquidity: IDL.Nat,
-  token1Price: IDL.Float64,
-  feeTier: IDL.Nat,
-  token1TotalVolume: IDL.Float64,
-  volumeUSD: IDL.Float64,
-  feesUSD: IDL.Float64,
-  token0Volume24H: IDL.Float64,
-  token1Standard: IDL.Text,
-  txCount: IDL.Nat,
-  token1Decimals: IDL.Float64,
-  token0Standard: IDL.Text,
-  token0Symbol: IDL.Text,
-  token0Decimals: IDL.Float64,
-  token0Price: IDL.Float64,
-  token1Symbol: IDL.Text,
-  timestamp: IDL.Int,
-});
+// const PublicPoolOverView = IDL.Record({
+//   id: IDL.Nat,
+//   token0TotalVolume: IDL.Float64,
+//   volumeUSD1d: IDL.Float64,
+//   volumeUSD7d: IDL.Float64,
+//   token0Id: IDL.Text,
+//   token1Id: IDL.Text,
+//   token1Volume24H: IDL.Float64,
+//   totalVolumeUSD: IDL.Float64,
+//   sqrtPrice: IDL.Float64,
+//   pool: IDL.Text,
+//   tick: IDL.Int,
+//   liquidity: IDL.Nat,
+//   token1Price: IDL.Float64,
+//   feeTier: IDL.Nat,
+//   token1TotalVolume: IDL.Float64,
+//   volumeUSD: IDL.Float64,
+//   feesUSD: IDL.Float64,
+//   token0Volume24H: IDL.Float64,
+//   token1Standard: IDL.Text,
+//   txCount: IDL.Nat,
+//   token1Decimals: IDL.Float64,
+//   token0Standard: IDL.Text,
+//   token0Symbol: IDL.Text,
+//   token0Decimals: IDL.Float64,
+//   token0Price: IDL.Float64,
+//   token1Symbol: IDL.Text,
+//   timestamp: IDL.Int,
+// });
 
-type PublicPoolOverView = {
-  id: bigint;
-  token0TotalVolume: number;
-  volumeUSD1d: number;
-  volumeUSD7d: number;
-  token0Id: string;
-  token1Id: string;
-  token1Volume24H: number;
-  totalVolumeUSD: number;
-  sqrtPrice: number;
-  pool: string;
-  tick: bigint;
-  liquidity: bigint;
-  token1Price: number;
-  feeTier: bigint;
-  token1TotalVolume: number;
-  volumeUSD: number;
-  feesUSD: number;
-  token0Volume24H: number;
-  token1Standard: string;
-  txCount: bigint;
-  token1Decimals: number;
-  token0Standard: string;
-  token0Symbol: string;
-  token0Decimals: number;
-  token0Price: number;
-  token1Symbol: string;
-  timestamp: number;
-};
+// type PublicPoolOverView = {
+//   id: bigint;
+//   token0TotalVolume: number;
+//   volumeUSD1d: number;
+//   volumeUSD7d: number;
+//   token0Id: string;
+//   token1Id: string;
+//   token1Volume24H: number;
+//   totalVolumeUSD: number;
+//   sqrtPrice: number;
+//   pool: string;
+//   tick: bigint;
+//   liquidity: bigint;
+//   token1Price: number;
+//   feeTier: bigint;
+//   token1TotalVolume: number;
+//   volumeUSD: number;
+//   feesUSD: number;
+//   token0Volume24H: number;
+//   token1Standard: string;
+//   txCount: bigint;
+//   token1Decimals: number;
+//   token0Standard: string;
+//   token0Symbol: string;
+//   token0Decimals: number;
+//   token0Price: number;
+//   token1Symbol: string;
+//   timestamp: number;
+// };
 
 export {
   Agent,
@@ -182,5 +190,5 @@ export {
   getBtcAddressArgs,
   getBtcAddressResult,
   Bridge,
-  PublicPoolOverView,
+  //   PublicPoolOverView,
 };

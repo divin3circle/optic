@@ -14,12 +14,12 @@ const POOL_STORAGE_CANISTER = "xmiu5-jqaaa-aaaag-qbz7q-cai";
 /*HELPERS */
 
 function getCkBtcPrincipal(): string {
-  // TODO: change once ready for mainnet
-  return "kirkt-nh777-77777-aaaeq-cai"; // ckbtc ledger
+  // Testnet ckBTC ledger
+  return "mxzaz-hqaaa-aaaar-qaada-cai";
 }
 function getMinterPrincipal(): string {
-  // TODO: change once ready for mainnet
-  return "ktuww-x7777-77777-aaaga-cai"; // minter
+  // Testnet ckBTC minter
+  return "m7sm4-2iaaa-aaaab-qabra-cai";
 }
 
 export {

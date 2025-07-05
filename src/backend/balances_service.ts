@@ -37,7 +37,7 @@ export class BalancesService {
           {
             address,
             min_confirmations: [],
-            network: { regtest: null },
+            network: { testnet: null },
           },
         ],
         cycles: BITCOIN_API_CYCLE_COST,
@@ -61,7 +61,7 @@ export class BalancesService {
         {
           address,
           filter: [],
-          network: { regtest: null },
+          network: { testnet: null },
         },
       ],
       cycles: BITCOIN_API_CYCLE_COST,

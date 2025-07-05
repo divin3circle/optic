@@ -1,9 +1,6 @@
 {
   "defaults": {
-    "bitcoin": {
-      "enabled": true,
-      "nodes": ["127.0.0.1:18444"]
-    }
+    "experimental": true
   },
   "networks": {
     "local": {
@@ -14,9 +11,6 @@
     "backend": {
       "type": "azle",
       "main": "src/backend/index.ts",
-      "custom": {
-        "experimental": true
-      },
       "declarations": {
         "output": "../declarations/backend",
         "node_compatibility": true

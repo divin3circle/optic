@@ -69,13 +69,13 @@ export class DepositService {
    * @returns The positions of the user.
    */
 
-  @update([], IDL.Vec(Position))
-  async getAllUserPositions(): Promise<Position[]> {
-    const caller = msgCaller();
-    const positions = Array.from(this.positions.get(caller) ?? []);
-    this.positions.set(caller, positions);
-    return positions;
-  }
+  //   @update([], IDL.Vec(Position))
+  //   async getAllUserPositions(): Promise<Position[]> {
+  //     const caller = msgCaller();
+  //     const positions = Array.from(this.positions.get(caller) ?? []);
+  //     this.positions.set(caller, positions);
+  //     return positions;
+  //   }
 }
 
 async function getUserBtcDepositAddress(
