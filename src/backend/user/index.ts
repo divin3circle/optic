@@ -11,12 +11,12 @@ import { User, Notification, PersonalMessage, ChatRoom } from "../types";
 
 export class UserService {
   users: Map<string, User> = new Map();
-
   usernameSet: Set<string> = new Set();
 
-  @query([], IDL.Opt(User))
-  get_user(principalId: Principal): User | null {
-    return this.users.get(principalId.toString()) || null;
+  @query([IDL.Principal], IDL.Opt(User))
+  get_user(principalId: Principal): [User] | [] {
+    const user = this.users.get(principalId.toString());
+    return user ? [user] : [];
   }
 
   @query([], IDL.Vec(User))
@@ -25,41 +25,44 @@ export class UserService {
   }
 
   @update([User], IDL.Opt(User))
-  create_user(user: User): User | null {
-    if (this.users.has(user.principalId.toString())) {
-      return null;
+  create_user(user: User): [User] | [] {
+    const caller = msgCaller();
+    if (this.users.has(caller.toString())) {
+      return [];
     }
-    this.users.set(user.principalId.toString(), user);
+    this.users.set(caller.toString(), user);
     this.usernameSet.add(user.username);
-    return user;
+    return [user];
   }
 
-  @query([], IDL.Bool)
+  @query([IDL.Text], IDL.Bool)
   username_exists(username: string): boolean {
     return this.usernameSet.has(username);
   }
 
   @update([User], IDL.Opt(User))
-  update_user(user: User): User | null {
-    if (!this.users.has(user.principalId.toString())) {
-      return null;
+  update_user(user: User): [User] | [] {
+    const caller = msgCaller();
+    if (!this.users.has(caller.toString())) {
+      return [];
     }
-    this.users.set(user.principalId.toString(), user);
-    return user;
+    this.users.set(caller.toString(), user);
+    return [user];
   }
 
   @update([], IDL.Opt(User))
-  delete_user(principalId: Principal): User | null {
-    const user = this.users.get(principalId.toString());
+  delete_user(): [User] | [] {
+    const caller = msgCaller();
+    const user = this.users.get(caller.toString());
     if (!user) {
-      return null;
+      return [];
     }
-    this.users.delete(principalId.toString());
+    this.users.delete(caller.toString());
     this.usernameSet.delete(user.username);
-    return user;
+    return [user];
   }
 
-  @update([], IDL.Bool)
+  @update([IDL.Text], IDL.Bool)
   mark_notification_read(notificationId: string): boolean {
     const caller = msgCaller();
     const user = this.users.get(caller.toString());
@@ -77,18 +80,21 @@ export class UserService {
   }
 
   @query([], IDL.Vec(Notification))
-  get_notifications(principalId: Principal): Notification[] {
-    return this.users.get(principalId.toString())?.notifications || [];
+  get_notifications(): Notification[] {
+    const caller = msgCaller();
+    return this.users.get(caller.toString())?.notifications || [];
   }
 
   @query([], IDL.Vec(PersonalMessage))
-  get_personal_messages(principalId: Principal): PersonalMessage[] {
-    return this.users.get(principalId.toString())?.personalMessages || [];
+  get_personal_messages(): PersonalMessage[] {
+    const caller = msgCaller();
+    return this.users.get(caller.toString())?.personalMessages || [];
   }
 
   @query([], IDL.Vec(IDL.Text))
-  get_chat_rooms(principalId: Principal): string[] {
-    const user = this.users.get(principalId.toString());
+  get_chat_rooms(): string[] {
+    const caller = msgCaller();
+    const user = this.users.get(caller.toString());
     if (!user) {
       return [];
     }

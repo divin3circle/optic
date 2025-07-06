@@ -84,7 +84,6 @@ export type Notification = {
 
 // User
 export const User = IDL.Record({
-  principalId: IDL.Principal,
   username: IDL.Text,
   nationality: IDL.Text,
   profileImage: IDL.Text,
@@ -109,7 +108,6 @@ export const User = IDL.Record({
   personalMessages: IDL.Vec(PersonalMessage), // list of personal messages
 });
 export type User = {
-  principalId: Principal;
   username: string;
   nationality: string;
   profileImage: string;
