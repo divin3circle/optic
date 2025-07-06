@@ -8,7 +8,81 @@
 
 import { IDL, Principal } from "azle";
 
-// 1. User
+//Reply
+export const Reply = IDL.Record({
+  messageId: IDL.Text,
+  sender: IDL.Principal,
+  content: IDL.Text,
+  timestamp: IDL.Int,
+});
+export type Reply = {
+  messageId: string;
+  sender: Principal;
+  content: string;
+  timestamp: bigint;
+};
+
+// ChatMessage
+export const ChatMessage = IDL.Record({
+  messageId: IDL.Text,
+  roomId: IDL.Text,
+  sender: IDL.Principal,
+  content: IDL.Text,
+  timestamp: IDL.Int,
+  reactions: IDL.Vec(
+    IDL.Record({
+      type: IDL.Text,
+      count: IDL.Nat32,
+    })
+  ),
+  replies: IDL.Vec(Reply), // list of replies
+});
+export type ChatMessage = {
+  messageId: string;
+  roomId: string;
+  sender: Principal;
+  content: string;
+  timestamp: bigint;
+  reactions: { type: string; count: number }[];
+  replies: Reply[];
+};
+
+export const PersonalMessage = IDL.Record({
+  messageId: IDL.Text,
+  sender: IDL.Principal,
+  receiver: IDL.Principal,
+  content: IDL.Text,
+  timestamp: IDL.Int,
+  read: IDL.Bool,
+});
+export type PersonalMessage = {
+  messageId: string;
+  sender: Principal;
+  receiver: Principal;
+  content: string;
+  timestamp: bigint;
+  read: boolean;
+};
+
+// Notification
+export const Notification = IDL.Record({
+  notificationId: IDL.Text,
+  type: IDL.Text, // "message" | "proposal" | "system"
+  title: IDL.Text,
+  message: IDL.Text,
+  read: IDL.Bool,
+  timestamp: IDL.Int,
+});
+export type Notification = {
+  notificationId: string;
+  type: "message" | "proposal" | "system";
+  title: string;
+  message: string;
+  read: boolean;
+  timestamp: bigint;
+};
+
+// User
 export const User = IDL.Record({
   principalId: IDL.Principal,
   username: IDL.Text,
@@ -30,6 +104,9 @@ export const User = IDL.Record({
     evm: IDL.Float64,
   }),
   plugins: IDL.Vec(IDL.Text), // list of plugin canister IDs
+  notifications: IDL.Vec(Notification),
+  chatRooms: IDL.Vec(IDL.Text), // list of chat room ids
+  personalMessages: IDL.Vec(PersonalMessage), // list of personal messages
 });
 export type User = {
   principalId: Principal;
@@ -52,9 +129,12 @@ export type User = {
     evm: number;
   };
   plugins: string[];
+  notifications: Notification[];
+  chatRooms: string[];
+  personalMessages: PersonalMessage[];
 };
 
-// 2. ChatRoom
+// ChatRoom
 export const ChatRoom = IDL.Record({
   id: IDL.Text,
   name: IDL.Text,
@@ -75,6 +155,7 @@ export const ChatRoom = IDL.Record({
   contributionCycle: IDL.Text, // "daily" | "weekly" | "monthly"
   maxContribution: IDL.Float64,
   createdAt: IDL.Int,
+  messages: IDL.Vec(ChatMessage),
 });
 export type ChatRoom = {
   id: string;
@@ -91,34 +172,10 @@ export type ChatRoom = {
   contributionCycle: "daily" | "weekly" | "monthly";
   maxContribution: number;
   createdAt: bigint;
+  messages: ChatMessage[];
 };
 
-// 3. ChatMessage
-export const ChatMessage = IDL.Record({
-  messageId: IDL.Text,
-  roomId: IDL.Text,
-  sender: IDL.Principal,
-  content: IDL.Text,
-  timestamp: IDL.Int,
-  reactions: IDL.Vec(
-    IDL.Record({
-      type: IDL.Text,
-      count: IDL.Nat32,
-    })
-  ),
-  replies: IDL.Vec(IDL.Text), // list of messageIds
-});
-export type ChatMessage = {
-  messageId: string;
-  roomId: string;
-  sender: Principal;
-  content: string;
-  timestamp: bigint;
-  reactions: { type: string; count: number }[];
-  replies: string[];
-};
-
-// 4. ContributionRecord
+// ContributionRecord
 export const Contribution = IDL.Record({
   roomId: IDL.Text,
   contributor: IDL.Principal,
@@ -132,7 +189,7 @@ export type Contribution = {
   timestamp: bigint;
 };
 
-// 5. PoolPosition
+// PoolPosition
 export const Position = IDL.Record({
   poolId: IDL.Text,
   tokenA: IDL.Text,
@@ -152,7 +209,7 @@ export type Position = {
   lastUpdated: bigint;
 };
 
-// 6. InvestmentEvent
+// InvestmentEvent
 export const InvestmentEvent = IDL.Record({
   roomId: IDL.Text,
   action: IDL.Text, // "swap" | "provide" | "withdraw"
@@ -166,7 +223,7 @@ export type InvestmentEvent = {
   timestamp: bigint;
 };
 
-// 7. Proposal & Vote (Governance)
+// Proposal & Vote (Governance)
 export const Proposal = IDL.Record({
   id: IDL.Text,
   proposer: IDL.Principal,
@@ -211,25 +268,7 @@ export type Vote = {
   timestamp: bigint;
 };
 
-// 8. Notification
-export const Notification = IDL.Record({
-  notificationId: IDL.Text,
-  type: IDL.Text, // "message" | "proposal" | "system"
-  title: IDL.Text,
-  message: IDL.Text,
-  read: IDL.Bool,
-  timestamp: IDL.Int,
-});
-export type Notification = {
-  notificationId: string;
-  type: "message" | "proposal" | "system";
-  title: string;
-  message: string;
-  read: boolean;
-  timestamp: bigint;
-};
-
-// 9. Plugin
+// Plugin
 export const Plugin = IDL.Record({
   id: IDL.Text,
   canisterId: IDL.Principal,
