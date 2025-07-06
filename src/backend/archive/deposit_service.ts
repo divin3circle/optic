@@ -1,7 +1,11 @@
 import { call, IDL, init, Principal, query, update, msgCaller } from "azle";
 import { bitcoin_address } from "azle/canisters/management/idl";
 import { getBtcAddressArgs, getBtcAddressResult, Position } from "./types";
-import { getMinterPrincipal } from "./utils";
+
+function getMinterPrincipal(): string {
+  // Testnet ckBTC minter
+  return "m7sm4-2iaaa-aaaab-qabra-cai";
+}
 
 export class DepositService {
   /************
@@ -69,13 +73,13 @@ export class DepositService {
    * @returns The positions of the user.
    */
 
-  //   @update([], IDL.Vec(Position))
-  //   async getAllUserPositions(): Promise<Position[]> {
-  //     const caller = msgCaller();
-  //     const positions = Array.from(this.positions.get(caller) ?? []);
-  //     this.positions.set(caller, positions);
-  //     return positions;
-  //   }
+  @update([], IDL.Vec(Position))
+  async getAllUserPositions(): Promise<Position[]> {
+    const caller = msgCaller();
+    const positions = Array.from(this.positions.get(caller) ?? []);
+    this.positions.set(caller, positions);
+    return positions;
+  }
 }
 
 async function getUserBtcDepositAddress(
