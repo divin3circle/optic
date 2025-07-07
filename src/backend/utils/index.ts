@@ -6,5 +6,9 @@ export function generate_pcr_id(
 }
 
 export function generate_message_id(): string {
-  return `${Date.now()}`;
+  return `m${Date.now()}`;
+}
+
+export function generate_notification_id(): string {
+  return `n${Date.now()}`;
 }
