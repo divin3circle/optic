@@ -12,3 +12,11 @@ export function generate_message_id(): string {
 export function generate_notification_id(): string {
   return `n${Date.now()}`;
 }
+
+export function truncate_string(str: string, length: number): string {
+  return str.length > length ? str.slice(0, length) + "..." : str;
+}
+
+export function log(message: string, data: any) {
+  console.log(message, data);
+}
