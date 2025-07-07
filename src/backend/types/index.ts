@@ -49,16 +49,12 @@ export type ChatMessage = {
 
 export const PersonalMessage = IDL.Record({
   messageId: IDL.Text,
-  sender: IDL.Principal,
-  receiver: IDL.Principal,
   content: IDL.Text,
   timestamp: IDL.Int,
   read: IDL.Bool,
 });
 export type PersonalMessage = {
   messageId: string;
-  sender: Principal;
-  receiver: Principal;
   content: string;
   timestamp: bigint;
   read: boolean;
@@ -80,6 +76,18 @@ export type Notification = {
   message: string;
   read: boolean;
   timestamp: bigint;
+};
+
+// Personal Chat Room
+export const PersonalChatRoom = IDL.Record({
+  id: IDL.Text,
+  participants: IDL.Vec(IDL.Principal),
+  messages: IDL.Vec(PersonalMessage),
+});
+export type PersonalChatRoom = {
+  id: string;
+  participants: Principal[];
+  messages: PersonalMessage[];
 };
 
 // User
@@ -105,7 +113,7 @@ export const User = IDL.Record({
   plugins: IDL.Vec(IDL.Text), // list of plugin canister IDs
   notifications: IDL.Vec(Notification),
   chatRooms: IDL.Vec(IDL.Text), // list of chat room ids
-  personalMessages: IDL.Vec(PersonalMessage), // list of personal messages
+  personalChatRooms: IDL.Vec(IDL.Text), // list of personal chat room ids
 });
 export type User = {
   username: string;
@@ -129,7 +137,7 @@ export type User = {
   plugins: string[];
   notifications: Notification[];
   chatRooms: string[];
-  personalMessages: PersonalMessage[];
+  personalChatRooms: string[];
 };
 
 // ChatRoom
@@ -144,6 +152,7 @@ export const ChatRoom = IDL.Record({
     amount: IDL.Float64,
   }),
   investors: IDL.Vec(
+    // list of investors
     IDL.Record({
       principalId: IDL.Principal,
       amountInvested: IDL.Float64,
