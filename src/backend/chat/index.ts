@@ -25,7 +25,7 @@ import { UserService } from "../user";
 import { personal_chat_rooms, users } from "../state";
 
 export class MessagesService {
-  @update([IDL.Text], IDL.Bool)
+  @update([IDL.Text, IDL.Principal], IDL.Bool)
   create_personal_chat_room(
     receiver_username: string,
     receiver_id: Principal
