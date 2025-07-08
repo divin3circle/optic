@@ -8,6 +8,31 @@
 
 import { IDL, Principal } from "azle";
 
+// Treasury Record
+export const TreasuryRecord = IDL.Record({
+  amount: IDL.Float64,
+  token: IDL.Text,
+  timestamp: IDL.Int,
+});
+
+export type TreasuryRecord = {
+  amount: number;
+  token: string;
+  timestamp: bigint;
+};
+
+// Investors
+export const Investor = IDL.Record({
+  principalId: IDL.Principal,
+  amountInvested: IDL.Float64,
+  feeShare: IDL.Float64,
+});
+export type Investor = {
+  principalId: Principal;
+  amountInvested: number;
+  feeShare: number;
+};
+
 //Reply
 export const Reply = IDL.Record({
   messageId: IDL.Text,
@@ -145,6 +170,7 @@ export const ChatRoom = IDL.Record({
   id: IDL.Text,
   name: IDL.Text,
   description: IDL.Text,
+  profileImage: IDL.Text,
   admin: IDL.Principal,
   members: IDL.Vec(IDL.Principal),
   treasury: IDL.Record({
@@ -164,24 +190,25 @@ export const ChatRoom = IDL.Record({
   maxContribution: IDL.Float64,
   createdAt: IDL.Int,
   messages: IDL.Vec(ChatMessage),
+  nextContributionDate: IDL.Int,
+  nextInvestmentDate: IDL.Int,
 });
 export type ChatRoom = {
   id: string;
   name: string;
   description: string;
+  profileImage: string;
   admin: Principal;
   members: Principal[];
   treasury: { token: string; amount: number };
-  investors: {
-    principalId: Principal;
-    amountInvested: number;
-    feeShare: number;
-  }[];
+  investors: Investor[];
   contributionCycle: "daily" | "weekly" | "monthly";
   investmentCycle: "weekly" | "monthly" | "yearly";
   maxContribution: number;
   createdAt: bigint;
   messages: ChatMessage[];
+  nextContributionDate: bigint;
+  nextInvestmentDate: bigint;
 };
 
 // ContributionRecord
