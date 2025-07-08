@@ -20,3 +20,4 @@ export const notifications: Map<string, Notification> = new Map();
 export const personal_messages: Map<string, PersonalMessage> = new Map();
 export const personal_chat_rooms: Map<string, PersonalChatRoom> = new Map();
 export const treasury_records: Map<string, TreasuryRecord[]> = new Map();
+export const room_investment_records: Map<string, number> = new Map();

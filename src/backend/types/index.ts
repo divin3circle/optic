@@ -187,11 +187,13 @@ export const ChatRoom = IDL.Record({
   ),
   contributionCycle: IDL.Text, // "daily" | "weekly" | "monthly"
   investmentCycle: IDL.Text, // How long will each investment take: "7 days" | "30 days"
+  investedAmount: IDL.Float64,
   maxContribution: IDL.Float64,
   createdAt: IDL.Int,
   messages: IDL.Vec(ChatMessage),
   nextContributionDate: IDL.Int,
   nextInvestmentDate: IDL.Int,
+  minimumAccountBalance: IDL.Float64,
 });
 export type ChatRoom = {
   id: string;
@@ -204,11 +206,13 @@ export type ChatRoom = {
   investors: Investor[];
   contributionCycle: "daily" | "weekly" | "monthly";
   investmentCycle: "weekly" | "monthly" | "yearly";
+  investedAmount: number;
   maxContribution: number;
   createdAt: bigint;
   messages: ChatMessage[];
   nextContributionDate: bigint;
   nextInvestmentDate: bigint;
+  minimumAccountBalance: number;
 };
 
 // ContributionRecord

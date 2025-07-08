@@ -7,7 +7,12 @@
  */
 
 import { IDL, msgCaller, Principal, query, update } from "azle";
-import { chat_rooms, treasury_records, users } from "../state";
+import {
+  chat_rooms,
+  room_investment_records,
+  treasury_records,
+  users,
+} from "../state";
 import { generate_chat_room_id, generate_notification_id, log } from "../utils";
 import { ChatRoom, Investor, Notification, TreasuryRecord } from "../types";
 
@@ -63,14 +68,17 @@ export class GroupChatService {
       investors: [],
       contributionCycle: contribution_cycle,
       investmentCycle: investment_cycle,
+      investedAmount: 0,
       maxContribution: max_contribution,
       createdAt: BigInt(Date.now()),
       messages: [],
       nextContributionDate: next_contribution_date,
       nextInvestmentDate: next_investment_date,
+      minimumAccountBalance: 0,
     };
     chat_rooms.set(new_chat_room.id, new_chat_room);
     user.chatRooms.push(new_chat_room.id);
+    room_investment_records.set(new_chat_room.id, 0);
     this.send_notification(
       `You have created a new group chat: ${name}`,
       "system",
@@ -195,6 +203,37 @@ export class GroupChatService {
     treasury_records.set(group_chat_id, treasury_record);
 
     return true;
+  }
+
+  @update([IDL.Text, IDL.Float64], IDL.Bool)
+  invest_room_funds(group_chat_id: string, amount: number): boolean {
+    // call ledger canister to invest funds in the front end
+    const room = chat_rooms.get(group_chat_id);
+    if (!room) {
+      log("Chat room not found", { group_chat_id });
+      return false;
+    }
+    room.investedAmount += amount;
+    const previous_amount = room_investment_records.get(group_chat_id);
+    if (!previous_amount) {
+      room_investment_records.set(group_chat_id, amount);
+    } else {
+      room_investment_records.set(group_chat_id, previous_amount + amount);
+    }
+    return true;
+  }
+
+  @query([IDL.Text], IDL.Bool)
+  withdraw_investment(
+    group_chat_id: string,
+    token: string,
+    investor: Principal
+  ): boolean {
+    const room = chat_rooms.get(group_chat_id);
+    if (!room) {
+      log("Chat room not found", { group_chat_id });
+      return false;
+    }
   }
 
   send_notification(
