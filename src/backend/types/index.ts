@@ -153,6 +153,7 @@ export const ChatRoom = IDL.Record({
     })
   ),
   contributionCycle: IDL.Text, // "daily" | "weekly" | "monthly"
+  investmentCycle: IDL.Text, // How long will each investment take: "7 days" | "30 days"
   maxContribution: IDL.Float64,
   createdAt: IDL.Int,
   messages: IDL.Vec(ChatMessage),
@@ -170,6 +171,7 @@ export type ChatRoom = {
     feeShare: number;
   }[];
   contributionCycle: "daily" | "weekly" | "monthly";
+  investmentCycle: "weekly" | "monthly" | "yearly";
   maxContribution: number;
   createdAt: bigint;
   messages: ChatMessage[];
