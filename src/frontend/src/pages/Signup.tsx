@@ -29,7 +29,7 @@ import { fetchCountryCode } from "../../utils/index.js";
 function Signup() {
   const [country, setCountry] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [profileImage, setProfileImage] = useState("");
+  const [profileImage, setProfileImage] = useState<string | null>(null);
   const [username, setUsername] = useState("");
   const [step, setStep] = useState(1);
   const { data, isLoading, error } = useFlags();
@@ -103,14 +103,23 @@ function Signup() {
                 <Label className="text-sm font-karla-semi-bold text-primary">
                   Profile Image
                 </Label>
-                <div className="flex items-center justify-center cursor-pointer gap-2 w-20 h-20 rounded-full border-[1px] border-gray-400">
-                  <SlCloudUpload className="text-primary" size={34} />
-                  <input
-                    type="file"
-                    className="hidden"
+
+                {profileImage ? (
+                  <div className="flex items-center justify-center cursor-pointer gap-2 w-20 h-20 rounded-full border-[1px] border-gray-400">
+                    <img
+                      src={profileImage}
+                      alt="profile"
+                      className="w-full h-full object-cover rounded-full"
+                    />
+                  </div>
+                ) : (
+                  <Input
+                    placeholder="Profile Image Link"
+                    className="h-10 rounded-2xl mt-2 text-primary"
+                    value={profileImage || ""}
                     onChange={(e) => setProfileImage(e.target.value)}
                   />
-                </div>
+                )}
               </div>
               <div className="mt-4">
                 <Label className="text-sm font-karla-semi-bold text-primary">

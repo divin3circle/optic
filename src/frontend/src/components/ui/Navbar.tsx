@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 function Navbar() {
   const navigate = useNavigate();
   return (
-    <div className="flex justify-between items-center px-4 py-2">
+    <div className="flex justify-between items-center px-4 py-2 bg-background">
       <a href="/">
         <motion.div
           initial={{ opacity: 0, y: 100 }}
@@ -19,12 +19,12 @@ function Navbar() {
         </motion.div>
       </a>
       <div className="flex items-center gap-4 px-4">
-        <button className="text-sm md:text-2xl font-karla cursor-pointer text-gray-700 hover:text-[#e8492a] transition-all duration-300 hover:underline">
+        <button className="text-sm md:text-xl font-karla cursor-pointer text-gray-700 hover:text-[#e8492a] transition-all duration-300 hover:underline">
           Internet Identity
         </button>
         <button
           onClick={() => navigate("/onboard")}
-          className="text-sm md:text-2xl font-karla cursor-pointer text-gray-700  hover:text-[#e8492a] transition-all duration-300 hover:underline"
+          className="text-sm md:text-xl font-karla cursor-pointer text-gray-700  hover:text-[#e8492a] transition-all duration-300 hover:underline"
         >
           Signup
         </button>

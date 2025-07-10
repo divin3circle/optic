@@ -24,6 +24,7 @@ import logo from "../../assets/images/icon.png";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const FormSchema = z.object({
   pin: z.string().min(6, {
@@ -32,6 +33,7 @@ const FormSchema = z.object({
 });
 
 function OTP() {
+  const navigate = useNavigate();
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -40,6 +42,7 @@ function OTP() {
   });
   function onSubmit(data: z.infer<typeof FormSchema>) {
     console.log(data);
+    navigate("/");
   }
 
   return (
@@ -95,7 +98,7 @@ function OTP() {
             />
             <Button
               type="submit"
-              className=" h-12 text-white rounded-xl bg-[#e8492a] hover:bg-[#e8492a]/80 mt-4 w-full"
+              className=" h-12 text-white rounded-full bg-[#e8492a] hover:bg-[#e8492a]/80 mt-4 w-full"
             >
               Verify
             </Button>

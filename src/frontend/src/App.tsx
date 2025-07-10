@@ -24,7 +24,7 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <main className="bg-background text-secondary-text h-screen w-screen">
+      <main className=" text-secondary-text h-screen w-screen">
         <Router>
           <Navbar />
           <Routes>
