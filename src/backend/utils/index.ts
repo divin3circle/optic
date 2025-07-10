@@ -1,3 +1,5 @@
+import { users } from "../state";
+
 export function generate_pcr_id(
   sender_username: string,
   receiver_username: string
@@ -6,11 +8,11 @@ export function generate_pcr_id(
 }
 
 export function generate_message_id(): string {
-  return `m${Date.now()}`;
+  return `m-${Date.now()}`;
 }
 
 export function generate_notification_id(): string {
-  return `n${Date.now()}`;
+  return `n-${Date.now()}`;
 }
 
 export function truncate_string(str: string, length: number): string {
@@ -19,4 +21,12 @@ export function truncate_string(str: string, length: number): string {
 
 export function log(message: string, data: any) {
   console.log(message, data);
+}
+
+export function generate_chat_room_id(): string {
+  return `cr-${Date.now()}`;
+}
+
+export function is_user_available(username: string): boolean {
+  return users.has(username);
 }

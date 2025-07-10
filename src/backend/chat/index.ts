@@ -21,7 +21,6 @@ import {
   log,
   truncate_string,
 } from "../utils";
-import { UserService } from "../user";
 import { personal_chat_rooms, users } from "../state";
 
 export class MessagesService {
@@ -132,8 +131,7 @@ export class MessagesService {
       read: false,
       timestamp: BigInt(Date.now()),
     };
-    const userService = new UserService();
-    const user = userService.get_user(receiver_id)[0];
+    const user = users.get(receiver_id.toString());
     if (!user) {
       log("User not found", {
         receiver_id,
