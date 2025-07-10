@@ -9,7 +9,15 @@
     "dev": "vite"
   },
   "dependencies": {
+    "@dfinity/agent": "^2.4.1",
+    "@dfinity/auth-client": "^2.4.1",
+    "@dfinity/candid": "^2.4.1",
+    "@dfinity/identity": "^2.4.1",
+    "@dfinity/ledger-icp": "^3.0.0",
+    "@dfinity/principal": "^2.4.1",
+    "@dfinity/utils": "^2.13.1",
     "@hookform/resolvers": "^5.1.1",
+    "@nfid/identitykit": "^1.0.14",
     "@radix-ui/react-label": "^2.1.7",
     "@radix-ui/react-select": "^2.2.5",
     "@radix-ui/react-slot": "^1.2.3",

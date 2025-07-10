@@ -1,6 +1,16 @@
 import { motion } from "framer-motion";
 import logo from "../../../assets/images/icon.png";
 import { useNavigate } from "react-router-dom";
+import { ConnectWallet } from "@nfid/identitykit/react";
+
+const CustomConnectButton = (props) => (
+  <button
+    {...props}
+    className="text-sm md:text-xl font-karla cursor-pointer text-gray-700 hover:text-[#e8492a] transition-all duration-300 hover:underline"
+  >
+    Internet Identity
+  </button>
+);
 
 function Navbar() {
   const navigate = useNavigate();
@@ -19,9 +29,7 @@ function Navbar() {
         </motion.div>
       </a>
       <div className="flex items-center gap-4 px-4">
-        <button className="text-sm md:text-xl font-karla cursor-pointer text-gray-700 hover:text-[#e8492a] transition-all duration-300 hover:underline">
-          Internet Identity
-        </button>
+        <ConnectWallet connectButtonComponent={CustomConnectButton} />
         <button
           onClick={() => navigate("/onboard")}
           className="text-sm md:text-xl font-karla cursor-pointer text-gray-700  hover:text-[#e8492a] transition-all duration-300 hover:underline"
