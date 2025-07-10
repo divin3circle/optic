@@ -1,5 +1,13 @@
 import { useState } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { createActor, canisterId } from "../../declarations/backend";
+import Landing from "./pages/Landing";
+import Signup from "./pages/Signup";
+import Navbar from "./components/ui/Navbar";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import OTP from "./pages/OTP";
+
+const queryClient = new QueryClient();
 
 function App() {
   const [greeting, setGreeting] = useState("");
@@ -15,10 +23,18 @@ function App() {
   }
 
   return (
-    <main className="bg-background text-secondary-text h-screen w-screen">
-      <div className="w-48 h-48 bg-secondary border-2 border-secondary rounded-full"></div>
-      <h1 className="text-4xl font-karla text-text">Hello World</h1>
-    </main>
+    <QueryClientProvider client={queryClient}>
+      <main className="bg-background text-secondary-text h-screen w-screen">
+        <Router>
+          <Navbar />
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/onboard" element={<Signup />} />
+            <Route path="/otp" element={<OTP />} />
+          </Routes>
+        </Router>
+      </main>
+    </QueryClientProvider>
   );
 }
 
