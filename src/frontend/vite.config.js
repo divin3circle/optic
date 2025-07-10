@@ -1,6 +1,7 @@
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import environment from "vite-plugin-environment";
+import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   envDir: "../../",
@@ -21,9 +22,10 @@ export default defineConfig({
         changeOrigin: true,
       },
     },
-    host: '127.0.0.1'
+    host: "127.0.0.1",
   },
   plugins: [
+    tailwindcss(),
     react(),
     environment("all", { prefix: "CANISTER_" }),
     environment("all", { prefix: "DFX_" }),

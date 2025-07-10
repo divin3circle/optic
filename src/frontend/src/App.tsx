@@ -15,16 +15,9 @@ function App() {
   }
 
   return (
-    <main>
-      <img src="/logo2.svg" alt="DFINITY logo" />
-      <br />
-      <br />
-      <form action="#" onSubmit={handleSubmit}>
-        <label htmlFor="name">Enter your name: &nbsp;</label>
-        <input id="name" alt="Name" type="text" />
-        <button type="submit">Click Me!</button>
-      </form>
-      <section id="greeting">{greeting}</section>
+    <main className="bg-background text-secondary-text h-screen w-screen">
+      <div className="w-48 h-48 bg-secondary border-2 border-secondary rounded-full"></div>
+      <h1 className="text-4xl font-karla text-text">Hello World</h1>
     </main>
   );
 }
