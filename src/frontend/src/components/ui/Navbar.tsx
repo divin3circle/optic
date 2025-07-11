@@ -3,7 +3,7 @@ import logo from "../../../assets/images/icon.png";
 import { useNavigate } from "react-router-dom";
 import { ConnectWallet } from "@nfid/identitykit/react";
 
-const CustomConnectButton = (props) => (
+const CustomConnectButton = (props: any) => (
   <button
     {...props}
     className="text-sm md:text-xl font-karla cursor-pointer text-gray-700 hover:text-[#e8492a] transition-all duration-300 hover:underline"
