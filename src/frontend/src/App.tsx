@@ -8,6 +8,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import OTP from "./pages/OTP";
 import "@nfid/identitykit/react/styles.css";
 import { IdentityKitProvider } from "@nfid/identitykit/react";
+import { IdentityKitTheme } from "@nfid/identitykit/react";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ function App() {
       signerClientOptions={{
         targets: ["uxrrr-q7777-77774-qaaaq-cai"],
       }}
+      theme={IdentityKitTheme.LIGHT}
     >
       <QueryClientProvider client={queryClient}>
         <main className=" text-secondary-text h-screen w-screen">

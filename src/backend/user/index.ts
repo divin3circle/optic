@@ -6,7 +6,7 @@
  * *************************
  */
 
-import { query, update, Principal, IDL, msgCaller } from "azle";
+import { query, update, Principal, IDL } from "azle";
 import {
   User,
   Notification,
@@ -31,15 +31,13 @@ export class UserService {
 
   @update([User], IDL.Opt(User))
   create_user(user: User): [User] | [] {
-    const caller = msgCaller();
-    if (users.has(caller.toString())) {
+    if (users.has(user.id)) {
       log("User already exists", {
-        caller,
         user,
       });
       return [];
     }
-    users.set(caller.toString(), user);
+    users.set(user.id, user);
     username_set.add(user.username);
     return [user];
   }
@@ -51,40 +49,36 @@ export class UserService {
 
   @update([User], IDL.Opt(User))
   update_user(user: User): [User] | [] {
-    const caller = msgCaller();
-    if (!users.has(caller.toString())) {
+    if (!users.has(user.id)) {
       log("User not found", {
-        caller,
         user,
       });
       return [];
     }
-    users.set(caller.toString(), user);
+    users.set(user.id, user);
     return [user];
   }
 
   @update([], IDL.Opt(User))
-  delete_user(): [User] | [] {
-    const caller = msgCaller();
-    const user = users.get(caller.toString());
+  delete_user(id: string): [User] | [] {
+    const user = users.get(id);
     if (!user) {
       log("User not found", {
-        caller,
+        id,
       });
       return [];
     }
-    users.delete(caller.toString());
+    users.delete(user.id);
     username_set.delete(user.username);
     return [user];
   }
 
   @update([IDL.Text], IDL.Bool)
-  mark_notification_read(notificationId: string): boolean {
-    const caller = msgCaller();
-    const user = users.get(caller.toString());
+  mark_notification_read(id: string, notificationId: string): boolean {
+    const user = users.get(id);
     if (!user) {
       log("User not found", {
-        caller,
+        id,
       });
       return false;
     }
@@ -93,7 +87,6 @@ export class UserService {
     );
     if (!notification) {
       log("Notification not found", {
-        caller,
         notificationId,
       });
       return false;
@@ -103,18 +96,16 @@ export class UserService {
   }
 
   @query([], IDL.Vec(Notification))
-  get_notifications(): Notification[] {
-    const caller = msgCaller();
-    return users.get(caller.toString())?.notifications || [];
+  get_notifications(id: string): Notification[] {
+    return users.get(id)?.notifications || [];
   }
 
   @query([], IDL.Vec(IDL.Text))
-  get_personal_chat_rooms(): string[] {
-    const caller = msgCaller();
-    const user = users.get(caller.toString());
+  get_personal_chat_rooms(id: string): string[] {
+    const user = users.get(id);
     if (!user) {
       log("User not found", {
-        caller,
+        id,
       });
       return [];
     }
@@ -122,12 +113,11 @@ export class UserService {
   }
 
   @query([], IDL.Vec(IDL.Text))
-  get_chat_rooms(): string[] {
-    const caller = msgCaller();
-    const user = users.get(caller.toString());
+  get_chat_rooms(id: string): string[] {
+    const user = users.get(id);
     if (!user) {
       log("User not found", {
-        caller,
+        id,
       });
       return [];
     }

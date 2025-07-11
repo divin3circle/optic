@@ -9,7 +9,7 @@ function Hero() {
   const navigate = useNavigate();
   return (
     <div className="h-screen w-screen flex flex-col items-center justify-center">
-      <div className=" flex flex-col items-center gap-2 w-full p-2">
+      <div className="mt-8 flex flex-col items-center gap-2 w-full p-2">
         <motion.h1
           initial={{ opacity: 0, y: 100 }}
           animate={{ opacity: 1, y: 0 }}

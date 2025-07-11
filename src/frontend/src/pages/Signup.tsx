@@ -4,13 +4,7 @@ import message from "../../assets/images/message.webp";
 import message2 from "../../assets/images/messages2.webp";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { SlCloudUpload } from "react-icons/sl";
-import { CiCircleInfo } from "react-icons/ci";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { User } from "../../types/user";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import {
@@ -22,17 +16,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { NAMES_URL, useFlags } from "../../hooks/useFlags.js";
+import { useFlags } from "../../hooks/useFlags.js";
 import { useNavigate } from "react-router-dom";
-import { fetchCountryCode } from "../../utils/index.js";
+import { ArrowLeftIcon } from "lucide-react";
+import { useAuth } from "@nfid/identitykit/react";
+import { createActor, canisterId } from "../../../declarations/backend";
+import Loading, { ButtonLoading } from "@/components/ui/Loading";
 
 function Signup() {
+  const { user } = useAuth();
   const [country, setCountry] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [username, setUsername] = useState("");
+  const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1);
-  const { data, isLoading, error } = useFlags();
+  const { data } = useFlags();
   const navigate = useNavigate();
 
   const handleNext = () => {
@@ -41,7 +40,34 @@ function Signup() {
         setStep(2);
         break;
       case 2:
-        navigate("/otp");
+        if (!user) return;
+        setLoading(true);
+        const registeredUser: User = {
+          id: user.principal.toString(),
+          username: username,
+          nationality: country,
+          profileImage: profileImage || "",
+          evmAddress: "",
+          btcAddress: "",
+          chatStatus: "offline",
+          lastOnline: BigInt(0),
+          reputationScore: 0,
+          subscriptionStatus: { type: "free", expiresIn: BigInt(0) },
+          theme: "light",
+          balances: { icp: 0, ckBTC: 0, evm: 0 },
+          plugins: [],
+          notifications: [],
+          chatRooms: [],
+          personalChatRooms: [],
+        };
+        console.log(registeredUser);
+        const backend = createActor(canisterId);
+        backend.create_user(registeredUser).then((res) => {
+          console.log("backend response", res);
+          setLoading(false);
+          navigate("/otp");
+        });
+
         break;
       default:
         break;
@@ -208,16 +234,18 @@ function Signup() {
             {step === 2 && (
               <Button
                 onClick={() => setStep(1)}
-                className="w-full md:w-44 h-12 rounded-full bg-transparent shadow-none text-primary hover:bg-transparent hover:text-primary"
+                className="w-full md:w-44 h-10 rounded-full bg-transparent shadow-none text-primary hover:bg-transparent hover:text-primary flex items-center justify-center gap-2"
               >
+                <ArrowLeftIcon className="w-6 h-6 mb-1" />
                 Previous
               </Button>
             )}
             <Button
               onClick={handleNext}
-              className="w-full md:w-44 h-12 text-white rounded-full bg-[#e8492a]"
+              className="w-full md:w-44 h-10 text-white rounded-full bg-[#e8492a] disabled:bg-gray-300 disabled:opacity-100"
+              disabled={loading}
             >
-              {step === 1 ? "Next" : "Finish"}
+              {loading ? <ButtonLoading /> : step === 1 ? "Next" : "Finish"}
             </Button>
           </motion.div>
         </div>

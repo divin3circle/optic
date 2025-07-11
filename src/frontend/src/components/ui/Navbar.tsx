@@ -1,7 +1,12 @@
 import { motion } from "framer-motion";
 import logo from "../../../assets/images/icon.png";
 import { useNavigate } from "react-router-dom";
-import { ConnectWallet } from "@nfid/identitykit/react";
+import {
+  ConnectWallet,
+  ConnectWalletButton,
+  ConnectedWalletButton,
+  ConnectWalletDropdownMenu,
+} from "@nfid/identitykit/react";
 
 const CustomConnectButton = (props: any) => (
   <button
@@ -10,6 +15,40 @@ const CustomConnectButton = (props: any) => (
   >
     Internet Identity
   </button>
+);
+
+const CustomConnectedButton = (props: any) => (
+  <ConnectedWalletButton
+    {...props}
+    style={{
+      backgroundColor: "transparent",
+      border: "1px solid #e8492a",
+      padding: "0",
+      margin: "0",
+      fontSize: "16px",
+      fontWeight: "normal",
+      color: "black",
+      fontFamily: "Karla",
+    }}
+    className="text-sm md:text-xl font-karla cursor-pointer text-gray-700 hover:text-[#e8492a] transition-all duration-300 hover:underline border border-gray-400 rounded-full px-4 py-2"
+  >
+    {props.children}
+  </ConnectedWalletButton>
+);
+
+const CustomConnectWalletDropdownMenu = (props: any) => (
+  <ConnectWalletDropdownMenu
+    {...props}
+    style={{
+      backgroundColor: "#f6f6f6",
+      fontFamily: "Karla",
+      fontWeight: "normal",
+      fontSize: "16px",
+    }}
+    className="border border-gray-400 rounded-full px-4 py-2 shadow-none"
+  >
+    {props.children}
+  </ConnectWalletDropdownMenu>
 );
 
 function Navbar() {
@@ -29,13 +68,11 @@ function Navbar() {
         </motion.div>
       </a>
       <div className="flex items-center gap-4 px-4">
-        <ConnectWallet connectButtonComponent={CustomConnectButton} />
-        <button
-          onClick={() => navigate("/onboard")}
-          className="text-sm md:text-xl font-karla cursor-pointer text-gray-700  hover:text-[#e8492a] transition-all duration-300 hover:underline"
-        >
-          Signup
-        </button>
+        <ConnectWallet
+          connectButtonComponent={CustomConnectButton}
+          connectedButtonComponent={CustomConnectedButton}
+          dropdownMenuComponent={CustomConnectWalletDropdownMenu}
+        />
       </div>
     </div>
   );

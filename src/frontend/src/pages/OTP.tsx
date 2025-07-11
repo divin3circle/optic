@@ -96,12 +96,17 @@ function OTP() {
                 </FormItem>
               )}
             />
-            <Button
-              type="submit"
-              className=" h-12 text-white rounded-full bg-[#e8492a] hover:bg-[#e8492a]/80 mt-4 w-full"
-            >
-              Verify
-            </Button>
+            <div className="flex flex-col gap-2 md:flex-row md:justify-between w-full items-center mt-8">
+              <a href="/">
+                <p className="text-sm text-gray-500 underline">Verify Later?</p>
+              </a>
+              <Button
+                type="submit"
+                className=" h-10 text-white rounded-full bg-[#e8492a] hover:bg-[#e8492a]/80 w-full md:w-1/2"
+              >
+                Verify
+              </Button>
+            </div>
           </form>
         </Form>
       </div>
