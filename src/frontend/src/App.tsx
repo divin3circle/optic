@@ -10,6 +10,8 @@ import { IdentityKitTheme } from "@nfid/identitykit/react";
 import Dashboard from "./pages/Dashboard";
 import Home from "./pages/Home";
 import DirectMessages from "./pages/DirectMessages";
+import Notifications from "./pages/Notifications";
+import Wallet from "./pages/Wallet";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +37,11 @@ function App() {
                   path="/dashboard/messages"
                   element={<DirectMessages />}
                 />
+                <Route
+                  path="/dashboard/notifications"
+                  element={<Notifications />}
+                />
+                <Route path="/dashboard/wallet" element={<Wallet />} />
               </Route>
             </Routes>
           </Router>
