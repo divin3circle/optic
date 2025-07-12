@@ -4,7 +4,6 @@ import Features from "../components/app/landing/Features";
 import { useAuth } from "@nfid/identitykit/react";
 import Loading from "../components/ui/Loading";
 import { useNavigate } from "react-router-dom";
-import { useAccounts } from "@nfid/identitykit/react";
 
 function Landing() {
   const { isConnecting, user } = useAuth();

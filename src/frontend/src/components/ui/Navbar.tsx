@@ -54,7 +54,7 @@ const CustomConnectWalletDropdownMenu = (props: any) => (
 function Navbar() {
   const navigate = useNavigate();
   return (
-    <div className="flex justify-between items-center px-4 py-2 bg-background">
+    <div className="flex justify-between items-center px-1 md:px-2 py-2 bg-background">
       <a href="/">
         <motion.div
           initial={{ opacity: 0, y: 100 }}
@@ -67,7 +67,7 @@ function Navbar() {
           <h1 className="text-2xl font-karla-bold text-primary">Optic</h1>
         </motion.div>
       </a>
-      <div className="flex items-center gap-4 px-4">
+      <div className="flex items-center px-1 md:px-4">
         <ConnectWallet
           connectButtonComponent={CustomConnectButton}
           connectedButtonComponent={CustomConnectedButton}

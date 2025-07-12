@@ -8,6 +8,8 @@ import "@nfid/identitykit/react/styles.css";
 import { IdentityKitProvider } from "@nfid/identitykit/react";
 import { IdentityKitTheme } from "@nfid/identitykit/react";
 import Dashboard from "./pages/Dashboard";
+import Home from "./pages/Home";
+import DirectMessages from "./pages/DirectMessages";
 
 const queryClient = new QueryClient();
 
@@ -20,14 +22,20 @@ function App() {
       theme={IdentityKitTheme.LIGHT}
     >
       <QueryClientProvider client={queryClient}>
-        <main className=" text-secondary-text h-screen w-screen">
+        <main className=" text-secondary-text h-screen w-screen ">
           <Router>
             <Navbar />
             <Routes>
               <Route path="/" element={<Landing />} />
               <Route path="/onboard" element={<Signup />} />
               <Route path="/otp" element={<OTP />} />
-              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/dashboard" element={<Dashboard />}>
+                <Route index element={<Home />} />
+                <Route
+                  path="/dashboard/messages"
+                  element={<DirectMessages />}
+                />
+              </Route>
             </Routes>
           </Router>
         </main>
