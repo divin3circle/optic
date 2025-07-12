@@ -5,6 +5,9 @@ import ShinyText from "../blocks/TextAnimations/ShinyText/ShinyText";
 import TokenCard from "@/components/app/dashboard/TokenCard";
 import useICPBalance from "../../hooks/useICPBalance";
 import { DASHBOARD_TOKENS } from "../../types/tokens";
+import { EarningsChat } from "@/components/app/dashboard/EarningsChat";
+import TrendingPools from "@/components/app/dashboard/TrendingPools";
+import Positions from "@/components/app/dashboard/Positions";
 
 export default function Home() {
   const { balance } = useICPBalance();
@@ -47,6 +50,21 @@ export default function Home() {
           <TokenCard key={token.id} token={token} />
         ))}
       </div>
+      <div className="mt-8 flex flex-col gap-4 md:flex-row">
+        <div className="w-full md:w-1/2">
+          <h1 className="text-2xl font-karla-bold text-primary">
+            My Earnings Chat
+          </h1>
+          <EarningsChat />
+        </div>
+        <div className="w-full md:w-1/2">
+          <h1 className="text-2xl font-karla-bold text-primary">
+            Trending Pool on ICPSwap
+          </h1>
+          <TrendingPools />
+        </div>
+      </div>
+      <Positions />
     </div>
   );
 }
