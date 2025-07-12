@@ -1,3 +1,7 @@
+import { createActor, canisterId } from "../../declarations/backend/index.js";
+
+export const backend = createActor(canisterId);
+
 export const fetchCountryCode = (country: string): string => {
   switch (country) {
     case "Australia":

@@ -97,7 +97,7 @@ function OTP() {
               )}
             />
             <div className="flex flex-col gap-2 md:flex-row md:justify-between w-full items-center mt-8">
-              <a href="/">
+              <a href="/dashboard">
                 <p className="text-sm text-gray-500 underline">Verify Later?</p>
               </a>
               <Button

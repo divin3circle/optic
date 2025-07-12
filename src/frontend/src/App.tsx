@@ -1,6 +1,4 @@
-import { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { createActor, canisterId } from "../../declarations/backend";
 import Landing from "./pages/Landing";
 import Signup from "./pages/Signup";
 import Navbar from "./components/ui/Navbar";
@@ -9,22 +7,11 @@ import OTP from "./pages/OTP";
 import "@nfid/identitykit/react/styles.css";
 import { IdentityKitProvider } from "@nfid/identitykit/react";
 import { IdentityKitTheme } from "@nfid/identitykit/react";
+import Dashboard from "./pages/Dashboard";
 
 const queryClient = new QueryClient();
 
 function App() {
-  const [greeting, setGreeting] = useState("");
-
-  function handleSubmit(event: any) {
-    // event.preventDefault();
-    // const name = event.target.elements.name.value;
-    // const backend = createActor(canisterId);
-    // backend.greet(name).then((greeting: any) => {
-    //   setGreeting(greeting);
-    // });
-    // return false;
-  }
-
   return (
     <IdentityKitProvider
       signerClientOptions={{
@@ -40,6 +27,7 @@ function App() {
               <Route path="/" element={<Landing />} />
               <Route path="/onboard" element={<Signup />} />
               <Route path="/otp" element={<OTP />} />
+              <Route path="/dashboard" element={<Dashboard />} />
             </Routes>
           </Router>
         </main>

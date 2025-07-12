@@ -7,13 +7,7 @@
  */
 
 import { query, update, Principal, IDL } from "azle";
-import {
-  User,
-  Notification,
-  PersonalMessage,
-  ChatRoom,
-  PersonalChatRoom,
-} from "../types";
+import { User, Notification } from "../types";
 import { users, username_set } from "../state";
 import { log } from "../utils";
 
