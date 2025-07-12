@@ -1,31 +1,46 @@
-import { useState } from "react";
-import { createActor, canisterId } from "../../declarations/backend";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Landing from "./pages/Landing";
+import Signup from "./pages/Signup";
+import Navbar from "./components/ui/Navbar";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import OTP from "./pages/OTP";
+import "@nfid/identitykit/react/styles.css";
+import { IdentityKitProvider } from "@nfid/identitykit/react";
+import { IdentityKitTheme } from "@nfid/identitykit/react";
+import Dashboard from "./pages/Dashboard";
+import Home from "./pages/Home";
+import DirectMessages from "./pages/DirectMessages";
+
+const queryClient = new QueryClient();
 
 function App() {
-  const [greeting, setGreeting] = useState("");
-
-  function handleSubmit(event: any) {
-    // event.preventDefault();
-    // const name = event.target.elements.name.value;
-    // const backend = createActor(canisterId);
-    // backend.greet(name).then((greeting: any) => {
-    //   setGreeting(greeting);
-    // });
-    // return false;
-  }
-
   return (
-    <main>
-      <img src="/logo2.svg" alt="DFINITY logo" />
-      <br />
-      <br />
-      <form action="#" onSubmit={handleSubmit}>
-        <label htmlFor="name">Enter your name: &nbsp;</label>
-        <input id="name" alt="Name" type="text" />
-        <button type="submit">Click Me!</button>
-      </form>
-      <section id="greeting">{greeting}</section>
-    </main>
+    <IdentityKitProvider
+      signerClientOptions={{
+        targets: ["uxrrr-q7777-77774-qaaaq-cai"],
+      }}
+      theme={IdentityKitTheme.LIGHT}
+    >
+      <QueryClientProvider client={queryClient}>
+        <main className=" text-secondary-text h-screen w-screen ">
+          <Router>
+            <Navbar />
+            <Routes>
+              <Route path="/" element={<Landing />} />
+              <Route path="/onboard" element={<Signup />} />
+              <Route path="/otp" element={<OTP />} />
+              <Route path="/dashboard" element={<Dashboard />}>
+                <Route index element={<Home />} />
+                <Route
+                  path="/dashboard/messages"
+                  element={<DirectMessages />}
+                />
+              </Route>
+            </Routes>
+          </Router>
+        </main>
+      </QueryClientProvider>
+    </IdentityKitProvider>
   );
 }
 

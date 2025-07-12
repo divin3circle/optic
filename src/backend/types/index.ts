@@ -117,6 +117,7 @@ export type PersonalChatRoom = {
 
 // User
 export const User = IDL.Record({
+  id: IDL.Text,
   username: IDL.Text,
   nationality: IDL.Text,
   profileImage: IDL.Text,
@@ -141,6 +142,7 @@ export const User = IDL.Record({
   personalChatRooms: IDL.Vec(IDL.Text), // list of personal chat room ids
 });
 export type User = {
+  id: string;
   username: string;
   nationality: string;
   profileImage: string;
