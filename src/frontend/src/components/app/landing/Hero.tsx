@@ -39,7 +39,7 @@ function Hero() {
         </motion.p>
         <div className="flex flex-col md:flex-row gap-4 mt-12 justify-center items-center md:gap-8">
           <button
-            onClick={() => navigate("/onboard")}
+            // onClick={() => navigate("/onboard")}
             className="md:text-xl text-sm font-karla-semi-bold text-[#e8492a] border-2 border-[#e8492a] p-3 rounded-full hover:bg-secondary hover:text-primary transition-all duration-300"
           >
             Begin Your Journey

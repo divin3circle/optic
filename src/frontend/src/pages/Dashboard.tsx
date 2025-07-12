@@ -5,16 +5,13 @@ import Loading from "@/components/ui/Loading";
 import { useAuth } from "@nfid/identitykit/react";
 
 export default function Layout() {
-  const { isConnecting, user } = useAuth();
+  const { isConnecting } = useAuth();
   const navigate = useNavigate();
 
   if (isConnecting) {
     return <Loading />;
   }
 
-  if (!user?.principal.toString()) {
-    // navigate("/onboard");
-  }
   return (
     <SidebarProvider>
       <AppSidebar />
