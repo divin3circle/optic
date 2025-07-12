@@ -4,13 +4,24 @@ import ckBTC from "../../../../assets/icons/ckBTC.svg";
 import icp from "../../../../assets/icons/icp.svg";
 import { ArrowRight, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { motion } from "motion/react";
 function TrendingPools() {
   const { pools, loading, error } = usePools();
   //   console.log(pools[0]);
   return (
     <div className="flex flex-col gap-4 mt-4 items-center">
-      <div className="bg-[#faf6f6] rounded-2xl p-4">
-        <div className="flex items-center justify-between">
+      <motion.div
+        className="bg-[#faf6f6] rounded-2xl p-4"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <motion.div
+          className="flex items-center justify-between"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
           <div className="flex items-center -gap-2">
             <img src={ckBTC} alt="ckBTC" className="w-10 h-10 " />
             <img
@@ -22,8 +33,13 @@ function TrendingPools() {
           <div className="bg-[#171717] rounded-full px-4 py-1">
             <p className="text-white text-sm font-karla">Normal Pool</p>
           </div>
-        </div>
-        <div>
+        </motion.div>
+        <motion.div
+          className="flex flex-col gap-2"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
           <h1 className="text-primary text-3xl font-karla flex items-center gap-2 my-6">
             ckBTC <ArrowRight className="w-4 h-4" /> ICP
           </h1>
@@ -33,7 +49,7 @@ function TrendingPools() {
             on the Internet Computer, is backed 1:1 by Bitcoin and offers fast
             and cheap transactions compared to traditional Bitcoin transactions.
           </p>
-        </div>
+        </motion.div>
 
         <div className="flex items-center justify-between gap-4 mt-4">
           <div className="flex flex-col">
@@ -73,7 +89,7 @@ function TrendingPools() {
             <p className="text-white text-sm font-karla">View Pool</p>
           </Button>
         </div>
-      </div>
+      </motion.div>
       <h1 className="text-gray-500 text-sm font-karla text-center flex gap-1 items-center cursor-pointer hover:text-primary hover:underline transition-all duration-300 mt-4">
         View more pools
         <ExternalLink className="w-4 h-4" />
