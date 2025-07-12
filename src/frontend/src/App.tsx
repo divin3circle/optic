@@ -12,6 +12,7 @@ import Home from "./pages/Home";
 import DirectMessages from "./pages/DirectMessages";
 import Notifications from "./pages/Notifications";
 import Wallet from "./pages/Wallet";
+import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +43,7 @@ function App() {
                   element={<Notifications />}
                 />
                 <Route path="/dashboard/wallet" element={<Wallet />} />
+                <Route path="/dashboard/settings" element={<Settings />} />
               </Route>
             </Routes>
           </Router>
