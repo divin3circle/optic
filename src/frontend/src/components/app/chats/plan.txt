@@ -1,0 +1,119 @@
+. Component Architecture
+a. High-Level Structure
+Sidebar (Chat List): Shows all chat rooms (personal, group, etc.), search, and pinned chats.
+Chat Window: Displays messages for the selected chat, with date separators, message bubbles, attachments, etc.
+Header: Shows chat/user info, actions (profile, call, etc.).
+Input Bar: For sending new messages, attachments, etc.
+b. Component Breakdown
+ChatSidebar
+ChatSearchBar
+PinnedChats
+ChatList
+ChatWindow
+ChatHeader
+MessageList
+MessageBubble
+DateSeparator
+AttachmentPreview
+MessageInputBar
+2. Data Fetching & State Management
+a. Fetching Chats & Messages
+On sidebar load, fetch chat rooms for the user (get_personal_chat_rooms).
+On chat selection, fetch messages for that room (get_personal_messages).
+b. State Management
+Use React context or a state manager (Zustand, Redux, or React Context + useReducer) to:
+Store chat rooms, selected chat, messages, loading/error states.
+Allow optimistic UI updates (e.g., show sent message before backend confirms).
+c. Caching & Pagination
+Cache chat rooms and messages in memory (and optionally localStorage for fast reloads).
+Implement message pagination (fetch latest N, load more on scroll up).
+Use SWR/React Query for caching, background refetching, and stale-while-revalidate patterns.
+3. Performance Considerations
+Virtualized Message List: Use libraries like react-window or react-virtualized for long message lists.
+Batch Fetching: Fetch messages in batches/pages, not all at once.
+Memoization: Memoize chat lists and message components to avoid unnecessary re-renders.
+Debounced Search: Debounce chat search input to avoid excessive backend calls.
+4. User Experience (UX) Enhancements
+Loading States: Skeletons/placeholders for chat list and messages while loading.
+Error Handling: Friendly error messages and retry options.
+Scroll Management: Auto-scroll to bottom on new messages, but don’t disrupt user if they’re reading older messages.
+Message Grouping: Group consecutive messages from the same sender, show date separators.
+Optimistic UI: Show sent messages immediately, mark as “sending” until confirmed.
+Accessibility: Keyboard navigation, ARIA labels, focus management.
+5. Scalability
+Component Reusability: Design message bubbles, chat items, etc., as reusable components.
+Separation of Concerns: Keep data fetching, state, and UI logic separate.
+Backend Pagination: Ensure backend supports paginated message fetching for scalability.
+6. Extensibility
+Attachments: Plan for images, files, audio, etc.
+Reactions/Replies: Design message model and UI to support future features.
+Real-time Upgrade: Structure code so you can later add real-time updates (WebSockets, polling, or push).
+7. Example Data Flow
+Backend
+UI
+User
+Backend
+UI
+User
+Loads chat page
+get_personal_chat_rooms(userId)
+[chatRoom1, chatRoom2, ...]
+Renders chat list
+Clicks chatRoom1
+get_personal_messages(chatRoom1Id)
+[msg1, msg2, ...]
+Renders messages
+8. Suggested Libraries
+State: Zustand, Redux, or React Context
+Data Fetching: SWR, React Query
+Virtualization: react-window, react-virtualized
+UI: Tailwind CSS, Radix UI, or your preferred component library
+9. Next Steps
+Scaffold the main components (Sidebar, ChatWindow, etc.).
+Set up state management and data fetching hooks.
+Implement chat list and message list with loading/error states.
+Add pagination, caching, and virtualized lists.
+Polish UX (scroll, grouping, optimistic UI, etc.).
+
+1. Responsive Layout Strategy
+a. Desktop (≥ md breakpoint)
+Sidebar and Chat Window are both visible side-by-side (like your screenshot).
+Sidebar on the left, chat window on the right.
+b. Mobile (≤ sm breakpoint)
+Only one panel visible at a time:
+Default: Show the ChatSidebar (chat list).
+When a chat is selected: Show the ChatWindow (messages for that chat).
+Back button in the ChatWindow to return to the ChatSidebar.
+2. Implementation Suggestions
+a. State Management
+Use a piece of state, e.g., selectedChatId, to determine which view to show.
+On mobile, if selectedChatId is null, show the sidebar; otherwise, show the chat window.
+b. CSS/Framework
+Use CSS media queries or a utility framework like Tailwind CSS for responsive breakpoints.
+Use hidden, block, or flex classes to show/hide panels based on screen size and state.
+c. Example Pseudocode
+Apply to plan.txt
+>
+isMobile can be determined using a custom hook (see below).
+3. Detecting Mobile Devices
+Use a custom React hook to detect screen size:
+Apply to plan.txt
+}
+4. UX Details for Mobile
+Back Button: In the chat window, show a back arrow at the top to return to the chat list.
+Transitions: Use smooth transitions/animations when switching views.
+Touch Targets: Make sure buttons and chat items are large enough for touch.
+5. Accessibility
+Ensure all interactive elements are keyboard accessible.
+Use ARIA roles/labels for navigation and chat content.
+Maintain focus order when switching between sidebar and chat window.
+6. Summary Diagram
+select chat
+back button
+Mobile: Chat List
+Mobile: Chat Window
+Desktop: Sidebar + Chat Window
+In summary:
+On desktop: show both panels.
+On mobile: show one at a time, with a back button to switch.
+Use state and responsive CSS to control visibility.

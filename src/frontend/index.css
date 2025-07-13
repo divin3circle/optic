@@ -2,11 +2,20 @@
 @import "tw-animate-css";
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
+/* index.css or a global CSS file */
+.hide-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* IE and Edge */
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
 @font-face {
   font-family: "KarlaRegular";
   src: url("./assets/fonts/Karla-Regular.ttf") format("truetype");
 }
-
+s
 @font-face {
   font-family: "KarlaBold";
   src: url("./assets/fonts/Karla-Bold.ttf") format("truetype");
