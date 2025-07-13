@@ -10,7 +10,19 @@ function MessageList() {
         scrollbarColor: "#faf6f9",
       }}
     >
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 flex-1 overflow-y-scroll scrollbar-hide">
+        <MessageBubble isSender={true} />
+        <MessageBubble isSender={true} />
+        <MessageBubble isSender={false} />
+        <MessageBubble isSender={true} />
+        <MessageBubble isSender={false} />
+        <MessageBubble isSender={true} />
+        <MessageBubble isSender={true} />
+        <MessageBubble isSender={true} />
+        <MessageBubble isSender={false} />
+        <MessageBubble isSender={true} />
+        <MessageBubble isSender={false} />
+        <MessageBubble isSender={true} />
         <MessageBubble isSender={true} />
         <MessageBubble isSender={true} />
         <MessageBubble isSender={false} />

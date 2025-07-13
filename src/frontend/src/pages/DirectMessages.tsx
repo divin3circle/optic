@@ -11,7 +11,7 @@ type selectedChatId = string | null;
 function DirectMessages() {
   const isMobile = useChatIsMobile();
 
-  const selectedChatIdMock: selectedChatId = null;
+  const selectedChatIdMock: selectedChatId = "null";
 
   return (
     <div className="flex h-screen w-full">
