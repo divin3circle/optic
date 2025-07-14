@@ -4,6 +4,7 @@ import useUserStore from "../../store/user";
 import { useUser } from "../../hooks/useUser";
 import Loading from "@/components/ui/Loading";
 import SettingsSkeleton from "@/skeletons/settings";
+import { FaDotCircle, FaGlobe } from "react-icons/fa";
 
 function Settings() {
   const user = useUserStore((state) => state.user);
@@ -13,9 +14,6 @@ function Settings() {
     return <SettingsSkeleton />;
   }
 
-  if (loading) {
-    return <Loading />;
-  }
   return (
     <div className="">
       <h1 className="text-primary text-2xl font-karla-bold">Settings</h1>
@@ -33,8 +31,9 @@ function Settings() {
             <h1 className="text-primary text-lg md:text-2xl font-karla">
               {user.username}
             </h1>
-            <p className="text-gray-500 text-sm font-karla">
-              Reputation: Rookie
+            <p className="text-gray-500 text-sm font-karla flex items-center gap-2">
+              <FaGlobe className="text-primary" />
+              {user.nationality.toUpperCase()}
             </p>
           </div>
         </div>

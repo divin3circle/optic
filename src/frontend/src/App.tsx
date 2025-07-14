@@ -6,6 +6,7 @@ import "@nfid/identitykit/react/styles.css";
 import { IdentityKitProvider } from "@nfid/identitykit/react";
 import { IdentityKitTheme } from "@nfid/identitykit/react";
 import Loading from "@/components/ui/Loading"; // Make sure you have this
+import RequireUser from "./components/app/dashboard/RequireUser";
 
 const Landing = lazy(() => import("./pages/Landing"));
 const Signup = lazy(() => import("./pages/Signup"));
@@ -36,7 +37,14 @@ function App() {
                 <Route path="/" element={<Landing />} />
                 <Route path="/onboard" element={<Signup />} />
                 <Route path="/otp" element={<OTP />} />
-                <Route path="/dashboard" element={<Dashboard />}>
+                <Route
+                  path="/dashboard"
+                  element={
+                    <RequireUser>
+                      <Dashboard />
+                    </RequireUser>
+                  }
+                >
                   <Route index element={<Home />} />
                   <Route
                     path="/dashboard/messages"

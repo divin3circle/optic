@@ -12,7 +12,7 @@ function TokenCard({ token }: { token: Token }) {
 
   return (
     <motion.div
-      className="bg-[#faf9f6] h-[200px] rounded-4xl p-4"
+      className="bg-[#faf9f6] h-[200px] rounded-4xl p-4 border border-gray-200"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}

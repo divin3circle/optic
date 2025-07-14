@@ -9,9 +9,9 @@ function TrendingPools() {
   const { pools, loading, error } = usePools();
   //   console.log(pools[0]);
   return (
-    <div className="flex flex-col gap-4 mt-4 items-center">
+    <div className="flex flex-col gap-4 mt-4 items-center ">
       <motion.div
-        className="bg-[#faf6f6] rounded-2xl p-4"
+        className="bg-[#faf6f6] rounded-2xl p-4 border border-gray-200"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -78,7 +78,7 @@ function TrendingPools() {
             <p className="text-white text-sm font-karla">Add Liquidity</p>
           </Button>
           <Button
-            className="bg-[#e8492a] text-white px-4 py-2 rounded-2xl w-1/2 md:w-1/3"
+            className="bg-[#e8492a] text-white px-4 py-2 rounded-2xl w-1/2 md:w-1/3 hover:bg-[#e8492a]/80"
             onClick={() => {
               window.open(
                 "https://app.icpswap.com/info-swap/pool/details/xmiu5-jqaaa-aaaag-qbz7q-cai?path=L2xpcXVpZGl0eT90YWI9VG9wUG9vbHM=&label=TGlxdWlkaXR5",
