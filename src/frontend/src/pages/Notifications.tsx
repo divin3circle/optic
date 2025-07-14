@@ -2,9 +2,12 @@ import { cn } from "@/lib/utils";
 import React, { useState } from "react";
 import { IoCheckmarkDoneOutline } from "react-icons/io5";
 import NotificationCard from "@/components/app/dashboard/NotificationCard";
+import useUserStore from "../../store/user";
 
 function Notifications() {
   const [active, setActive] = useState<"all" | "messages">("all");
+  const user = useUserStore((state) => state.user);
+  console.log(user?.notifications);
   return (
     <div className="max-w-[800px] mx-auto my-0">
       <h1 className="text-2xl font-karla-bold text-primary">Notifications</h1>

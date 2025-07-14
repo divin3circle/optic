@@ -9,12 +9,14 @@ import { LoadingSmall } from "@/components/ui/Loading";
 import successAnimation from "../../../../assets/lottie/success.json";
 import Lottie from "lottie-react";
 import { cn } from "@/lib/utils";
+import useUserStore from "../../../../store/user";
 
 function CreateRoomModal({
   setIsCreateRoomModalOpen,
 }: {
   setIsCreateRoomModalOpen: (isOpen: boolean) => void;
 }) {
+  const user = useUserStore((state) => state.user);
   const [search, setSearch] = useState("");
   const [step, setStep] = useState(1);
   const [searchResults, setSearchResults] = useState<User[] | null>(null);
@@ -34,12 +36,12 @@ function CreateRoomModal({
   };
 
   const handleCreateRoom = async () => {
-    if (!receiver) return;
+    if (!receiver || !user) return;
     setRoomCreationLoading(true);
     try {
       const results = await backend.create_personal_chat_room(
-        receiver.username,
-        receiver.id.toString()
+        receiver.id,
+        user.id
       );
       if (results) {
         setStep(3);
