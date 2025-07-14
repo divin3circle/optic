@@ -8,14 +8,14 @@ import animation from "../../../../assets/lottie/messaging.json";
 function Hero() {
   const navigate = useNavigate();
   return (
-    <div className="h-screen w-screen flex flex-col items-center justify-center">
+    <div className="h-screen w-screen flex flex-col items-center justify-center md:mt-32">
       <div className="mt-8 flex flex-col items-center gap-2 w-full p-2">
         <motion.h1
           initial={{ opacity: 0, y: 100 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           exit={{ opacity: 0, y: 100 }}
-          className="text-xl w-full md:text-3xl font-karla-bold text-primary md:text-center flex flex-col items-center gap-2 mt-8"
+          className="text-xl w-full md:text-3xl font-karla-bold text-primary md:text-center flex flex-col items-center gap-2"
         >
           Coordinate. Contribute. Compound.
           <TrueFocus

@@ -10,6 +10,14 @@ export const ButtonLoading = () => {
   );
 };
 
+export const LoadingSmall = () => {
+  return (
+    <div className="flex items-center justify-center gap-2 my-8">
+      <img src={logo} alt="logo" className="w-4 h-4 animate-bounce" />
+    </div>
+  );
+};
+
 function Loading() {
   return (
     <div className="flex flex-col items-center justify-center h-screen">

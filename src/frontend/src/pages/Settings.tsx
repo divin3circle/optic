@@ -25,7 +25,7 @@ function Settings() {
           <img
             src={user.profileImage}
             alt={user.username}
-            className="w-10 h-10 md:w-20 md:h-20 rounded-full border border-gray-200"
+            className="w-18 h-18 md:w-20 md:h-20 rounded-full border border-gray-200"
           />
           <div>
             <h1 className="text-primary text-lg md:text-2xl font-karla">

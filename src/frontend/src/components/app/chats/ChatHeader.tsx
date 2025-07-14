@@ -1,40 +1,24 @@
 import { Button } from "@/components/ui/button";
 import dummy from "../../../../assets/images/message.webp";
-import {
-  FaEllipsisH,
-  FaFlag,
-  FaPhone,
-  FaPlus,
-  FaSearch,
-  FaTrash,
-  FaVideo,
-  FaVolumeMute,
-} from "react-icons/fa";
-
-import { FaBan } from "react-icons/fa6";
-
-const options = [
-  {
-    label: "Delete Chat",
-    icon: <FaTrash className="w-4 h-4 text-[#e8492a]" />,
-  },
-  {
-    label: "Report",
-    icon: <FaFlag className="w-4 h-4 text-[#e8492a]" />,
-  },
-  {
-    label: "Block User",
-    icon: <FaBan className="w-4 h-4 text-[#e8492a]" />,
-  },
-  {
-    label: "Mute",
-    icon: <FaVolumeMute className="w-4 h-4 text-[#e8492a]" />,
-  },
-];
+import { FaPlus } from "react-icons/fa";
+import { useState } from "react";
+import CreateRoomModal from "./CreateRoomModal";
 
 function ChatHeader() {
+  const [isCreateRoomModalOpen, setIsCreateRoomModalOpen] = useState(true);
+
+  const handleCreateRoom = () => {
+    setIsCreateRoomModalOpen(true);
+  };
+
+  if (isCreateRoomModalOpen) {
+    return (
+      <CreateRoomModal setIsCreateRoomModalOpen={setIsCreateRoomModalOpen} />
+    );
+  }
+
   return (
-    <div className="flex items-center justify-between rounded-3xl bg-[#faf6f9] p-2 h-20">
+    <div className="flex items-center justify-between rounded-3xl bg-[#faf6f9] p-2 h-20 border border-gray-200">
       <div className="flex items-center gap-2">
         <div className="relative">
           <img src={dummy} alt="dummy" className="w-16 h-16 rounded-full" />

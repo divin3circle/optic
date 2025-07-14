@@ -24,10 +24,10 @@ import {
 import { personal_chat_rooms, users } from "../state";
 
 export class MessagesService {
-  @update([IDL.Text, IDL.Principal], IDL.Bool)
+  @update([IDL.Text, IDL.Text], IDL.Bool)
   create_personal_chat_room(
     receiver_username: string,
-    receiver_id: Principal
+    receiver_id: string
   ): boolean {
     const caller = msgCaller();
     const sender_username = caller.toString();
@@ -41,8 +41,8 @@ export class MessagesService {
       });
       return false;
     }
-    const receiver = users.get(receiver_id.toString());
-    const sender = users.get(caller.toString());
+    const receiver = users.get(receiver_id);
+    const sender = users.get(caller);
     if (!receiver || !sender) {
       log("User not found", {
         receiver_id,
@@ -61,13 +61,13 @@ export class MessagesService {
       `${sender_username} has created a new chat room with you.`,
       "system",
       "New Chat Room",
-      receiver_id
+      Principal.fromText(receiver_id)
     );
     this.send_notification(
       `Your chat room with ${receiver_username} has been created.`,
       "system",
       "New Chat Room",
-      caller.toString()
+      Principal.fromText(caller)
     );
     return true;
   }

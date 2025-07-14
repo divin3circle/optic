@@ -4,7 +4,7 @@ import { WiMoonAltNew } from "react-icons/wi";
 
 function NotificationCard() {
   return (
-    <div className="bg-[#faf9f6] rounded-3xl border border-[#faf9f6] p-4 flex items-center gap-2 relative cursor-pointer hover:bg-[#fff] transition-all duration-300">
+    <div className="bg-[#faf9f6] rounded-3xl border border-gray-200 p-4 flex items-center gap-2 relative cursor-pointer hover:bg-[#fff] transition-all duration-300">
       <img src={dummy} alt="dummy" className="w-14 h-14 rounded-xl" />
       <div className="flex flex-col">
         <h1 className="text-primary text-lg font-karla-bold">

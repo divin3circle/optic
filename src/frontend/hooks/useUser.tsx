@@ -14,7 +14,6 @@ export const useUser = () => {
       if (user) {
         setLoading(true);
         const u = await backend.get_user(user.principal);
-        console.log(u);
         setUser?.(u[0] as User);
         setLoading(false);
       }

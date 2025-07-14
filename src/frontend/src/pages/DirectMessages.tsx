@@ -1,5 +1,4 @@
 import { useChatIsMobile } from "../../hooks/useChatIsMobile";
-import React from "react";
 import ChatSidebar from "../components/app/chats/ChatSidebar";
 import ChatWindow from "../components/app/chats/ChatWindow";
 import { cn } from "@/lib/utils";

@@ -41,6 +41,14 @@ export class UserService {
     return username_set.has(username);
   }
 
+  @query([IDL.Text], IDL.Opt(User))
+  get_user_by_username(username: string): [User] | [] {
+    const user = Array.from(users.values()).find(
+      (user) => user.username === username
+    );
+    return user ? [user] : [];
+  }
+
   @update([User], IDL.Opt(User))
   update_user(user: User): [User] | [] {
     if (!users.has(user.id)) {
