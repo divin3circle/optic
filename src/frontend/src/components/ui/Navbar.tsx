@@ -40,7 +40,6 @@ const CustomConnectWalletDropdownMenu = (props: any) => (
   <ConnectWalletDropdownMenu
     {...props}
     style={{
-      backgroundColor: "#f6f6f6",
       fontFamily: "Karla",
       fontWeight: "normal",
       fontSize: "16px",

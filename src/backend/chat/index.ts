@@ -6,7 +6,7 @@
  * *************************
  */
 
-import { query, update, Principal, IDL, msgCaller } from "azle";
+import { query, update, Principal, IDL } from "azle";
 import {
   User,
   Notification,
@@ -24,28 +24,28 @@ import {
 import { personal_chat_rooms, users } from "../state";
 
 export class MessagesService {
-  @update([IDL.Text, IDL.Principal], IDL.Bool)
-  create_personal_chat_room(
-    receiver_username: string,
-    receiver_id: Principal
-  ): boolean {
-    const caller = msgCaller();
-    const sender_username = caller.toString();
-    const pcr_id = generate_pcr_id(sender_username, receiver_username);
+  @update([IDL.Text, IDL.Text], IDL.Bool)
+  create_personal_chat_room(receiver_id: string, sender_id: string): boolean {
+    const pcr_id = generate_pcr_id(sender_id, receiver_id);
     if (personal_chat_rooms.has(pcr_id)) {
       log("Personal chat room already exists", {
         pcr_id,
-        sender_username,
-        receiver_username,
+        sender_id,
         receiver_id,
       });
       return false;
     }
-    const receiver = users.get(receiver_id.toString());
-    const sender = users.get(caller.toString());
-    if (!receiver || !sender) {
-      log("User not found", {
+    const receiver = users.get(receiver_id);
+    const sender = users.get(sender_id);
+    if (!receiver) {
+      log("Receiver not found", {
         receiver_id,
+      });
+      return false;
+    }
+    if (!sender) {
+      log("Sender not found", {
+        sender_id,
       });
       return false;
     }
@@ -53,21 +53,24 @@ export class MessagesService {
     receiver.personalChatRooms.push(pcr_id);
     const pcr: PersonalChatRoom = {
       id: pcr_id,
-      participants: [caller, receiver_id],
+      participants: [
+        Principal.fromText(sender_id),
+        Principal.fromText(receiver_id),
+      ],
       messages: [],
     };
     personal_chat_rooms.set(pcr_id, pcr);
     this.send_notification(
-      `${sender_username} has created a new chat room with you.`,
+      `${sender.username} has created a new chat room with you.`,
       "system",
       "New Chat Room",
-      receiver_id
+      Principal.fromText(receiver_id)
     );
     this.send_notification(
-      `Your chat room with ${receiver_username} has been created.`,
+      `Your chat room with ${receiver.username} has been created.`,
       "system",
       "New Chat Room",
-      caller.toString()
+      Principal.fromText(sender_id)
     );
     return true;
   }

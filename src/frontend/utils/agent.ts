@@ -1,13 +1,4 @@
-import { createAgent } from "@dfinity/utils";
-import { LedgerCanister } from "@dfinity/ledger-icp";
-import { AnonymousIdentity } from "@dfinity/agent";
-import { Principal } from "@dfinity/principal";
+import { HttpAgent } from "@dfinity/agent";
 
-const identity = new AnonymousIdentity();
-
-const agent = await createAgent({
-  identity,
-  host: "https://ic0.app",
-});
-
+const agent = new HttpAgent({ host: "https://icp0.io" });
 export default agent;

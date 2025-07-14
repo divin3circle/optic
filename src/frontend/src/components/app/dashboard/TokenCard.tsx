@@ -4,13 +4,19 @@ import useTokenBalance, {
 } from "../../../../hooks/useTokenBalance";
 import useTokenPrices from "../../../../hooks/useTokenPrices";
 import { Skeleton } from "@/components/ui/skeleton";
+import { motion } from "motion/react";
 
 function TokenCard({ token }: { token: Token }) {
   const { balanceData, loading } = useTokenBalance(token.ledgerId);
   const { price, loading: priceLoading } = useTokenPrices(token.name);
 
   return (
-    <div className="bg-[#faf9f6] h-[200px] rounded-4xl p-4">
+    <motion.div
+      className="bg-[#faf9f6] h-[200px] rounded-4xl p-4 border border-gray-200"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
       <div className="">
         <img src={token.icon} alt="token" className="w-10 h-10 rounded-full" />
         <h1 className="text-gray-500 mt-2 font-karla">{token.name}</h1>
@@ -33,7 +39,7 @@ function TokenCard({ token }: { token: Token }) {
         )}
       </div>
       <p className={`text-green-500 font-karla text-sm`}>+1.23%</p>
-    </div>
+    </motion.div>
   );
 }
 

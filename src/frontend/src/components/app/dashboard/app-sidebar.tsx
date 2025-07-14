@@ -30,7 +30,7 @@ const items = [
   },
   {
     title: "Notifications",
-    url: "/notifications",
+    url: "/dashboard/notifications",
     icon: <IoIosNotifications size={64} className="text-[#faf9f6]" />,
   },
   {
@@ -40,17 +40,17 @@ const items = [
   },
   {
     title: "Groups",
-    url: "/groups",
+    url: "/dashboard/groups",
     icon: <FaUsers size={64} className="text-[#faf9f6]" />,
   },
   {
     title: "Settings",
-    url: "/settings",
+    url: "/dashboard/settings",
     icon: <FaCog size={64} className="text-[#faf9f6]" />,
   },
   {
     title: "Wallet",
-    url: "/wallet",
+    url: "/dashboard/wallet",
     icon: <FaWallet size={64} className="text-[#faf9f6]" />,
   },
 ];

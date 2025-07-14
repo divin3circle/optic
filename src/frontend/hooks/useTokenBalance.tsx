@@ -14,20 +14,24 @@ export default function useTokenBalance(ledgerId: string) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchMetadata = async () => {
+    if (!user) {
+      console.log("User not found");
+      return;
+    }
+    const fetchBalance = async () => {
       setLoading(true);
       const data = await metadata({
         certified: true,
       });
       const balanceData = await balance({
         certified: true,
-        owner: Principal.fromText(user!.principal.toString()),
+        owner: Principal.fromText(user.principal.toString()),
       });
       setBalanceData(balanceData);
       setLoading(false);
     };
-    fetchMetadata();
-  }, []);
+    fetchBalance();
+  }, [user]);
 
   return { balanceData, loading };
 }
