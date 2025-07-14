@@ -1,7 +1,21 @@
 import { Button } from "@/components/ui/button";
 import dummy from "../../assets/images/message.webp";
+import useUserStore from "../../store/user";
+import { useUser } from "../../hooks/useUser";
+import Loading from "@/components/ui/Loading";
+import SettingsSkeleton from "@/skeletons/settings";
 
 function Settings() {
+  const user = useUserStore((state) => state.user);
+  const { loading } = useUser();
+
+  if (!user) {
+    return <SettingsSkeleton />;
+  }
+
+  if (loading) {
+    return <Loading />;
+  }
   return (
     <div className="">
       <h1 className="text-primary text-2xl font-karla-bold">Settings</h1>
@@ -11,13 +25,13 @@ function Settings() {
       <div className="flex items-center justify-between my-4 border border-gray-200 rounded-2xl p-4 bg-[#faf6f7] mx-0 md:mx-2">
         <div className="flex items-center gap-2">
           <img
-            src={dummy}
-            alt="dummy"
-            className="w-10 h-10 md:w-20 md:h-20 rounded-full"
+            src={user.profileImage}
+            alt={user.username}
+            className="w-10 h-10 md:w-20 md:h-20 rounded-full border border-gray-200"
           />
           <div>
             <h1 className="text-primary text-lg md:text-2xl font-karla">
-              Sylus Abel
+              {user.username}
             </h1>
             <p className="text-gray-500 text-sm font-karla">
               Reputation: Rookie

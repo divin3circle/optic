@@ -6,7 +6,8 @@ import { useAuth } from "@nfid/identitykit/react";
 
 export default function Layout() {
   const { isConnecting } = useAuth();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
+  // const { currentUser, loading } = useUser();
 
   if (isConnecting) {
     return <Loading />;

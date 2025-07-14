@@ -1,30 +1,58 @@
-import dummy from "../../assets/images/message.webp";
-import { FaBrain, FaSpinner } from "react-icons/fa";
+import { FaBrain } from "react-icons/fa";
 import { motion } from "framer-motion";
 import ShinyText from "../blocks/TextAnimations/ShinyText/ShinyText";
 import TokenCard from "@/components/app/dashboard/TokenCard";
-import useICPBalance from "../../hooks/useICPBalance";
 import { DASHBOARD_TOKENS } from "../../types/tokens";
 import { EarningsChat } from "@/components/app/dashboard/EarningsChat";
 import TrendingPools from "@/components/app/dashboard/TrendingPools";
 import Positions from "@/components/app/dashboard/Positions";
+import useUserStore from "../../store/user.js";
+import { useUser } from "../../hooks/useUser.js";
+import Loading from "@/components/ui/Loading";
+import { useMemo } from "react";
+import { cn } from "@/lib/utils";
+import HomeSkeleton from "@/skeletons/home";
 
 export default function Home() {
-  const { balance } = useICPBalance();
+  const user = useUserStore((state) => state.user);
+  const { loading } = useUser();
+  const isProUser = useMemo(() => {
+    if (user?.subscriptionStatus.type === "free") {
+      return false;
+    }
+    return true;
+  }, [user?.subscriptionStatus.type]);
+
+  if (!user) {
+    return <HomeSkeleton />;
+  }
+
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <div className="md:mx-4">
       <div className="flex items-center justify-between w-full">
         <div className="flex items-center justify-start gap-2 my-2">
-          <img src={dummy} alt="user" className="w-16 h-16 rounded-full" />
+          <img
+            src={user.profileImage}
+            alt="user"
+            className="w-16 h-16 rounded-full"
+          />
           <div className="flex flex-col">
             <h1 className="font-karla-bold text-sm text-gray-400">
               Welcome Back
             </h1>
             <p className="text-primary text-lg font-karla flex items-center gap-2">
-              Sylus Abel
-              <span className="text-sm text-[#faf9f6] bg-[#e8492a] rounded-full px-2 py-.5">
-                PRO
+              {user.username}
+              <span
+                className={cn(
+                  "text-sm text-[#faf9f6] bg-[#e8492a] rounded-full px-2 py-.5",
+                  isProUser ? "bg-[#e8492a]" : "bg-gray-200 text-primary"
+                )}
+              >
+                {isProUser ? "PRO" : "FREE"}
               </span>
             </p>
           </div>
