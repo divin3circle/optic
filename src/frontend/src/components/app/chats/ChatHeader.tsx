@@ -5,18 +5,6 @@ import { useState } from "react";
 import CreateRoomModal from "./CreateRoomModal";
 
 function ChatHeader() {
-  const [isCreateRoomModalOpen, setIsCreateRoomModalOpen] = useState(true);
-
-  const handleCreateRoom = () => {
-    setIsCreateRoomModalOpen(true);
-  };
-
-  if (isCreateRoomModalOpen) {
-    return (
-      <CreateRoomModal setIsCreateRoomModalOpen={setIsCreateRoomModalOpen} />
-    );
-  }
-
   return (
     <div className="flex items-center justify-between rounded-3xl bg-[#faf6f9] p-2 h-20 border border-gray-200">
       <div className="flex items-center gap-2">

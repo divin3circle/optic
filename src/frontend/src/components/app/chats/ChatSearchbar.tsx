@@ -1,10 +1,21 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { SearchIcon } from "lucide-react";
-import React from "react";
 import { FaPlus } from "react-icons/fa";
+import CreateRoomModal from "./CreateRoomModal";
+import { useState } from "react";
 
 function ChatSearchbar() {
+  const [isCreateRoomModalOpen, setIsCreateRoomModalOpen] = useState(false);
+
+  if (isCreateRoomModalOpen) {
+    return (
+      <CreateRoomModal setIsCreateRoomModalOpen={setIsCreateRoomModalOpen} />
+    );
+  }
+  const handleCreateRoom = () => {
+    setIsCreateRoomModalOpen(true);
+  };
   return (
     <div className="flex items-center justify-between bg-[#faf6f9] rounded-3xl p-2 py-4 w-full h-20">
       <h1 className="text-primary font-karla text-lg font-bold">Chats</h1>
@@ -17,7 +28,10 @@ function ChatSearchbar() {
           <SearchIcon className="w-3 h-3 text-primary" />
         </Button>
       </div>
-      <button className="bg-[#e8492a] text-[#faf6f9] p-3 rounded-full">
+      <button
+        onClick={handleCreateRoom}
+        className="bg-[#e8492a] text-[#faf6f9] p-3 rounded-full"
+      >
         <FaPlus className="w-5 h-5 " />
       </button>
     </div>

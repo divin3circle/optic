@@ -10,6 +10,7 @@ import successAnimation from "../../../../assets/lottie/success.json";
 import Lottie from "lottie-react";
 import { cn } from "@/lib/utils";
 import useUserStore from "../../../../store/user";
+import { motion } from "framer-motion";
 
 function CreateRoomModal({
   setIsCreateRoomModalOpen,
@@ -55,7 +56,13 @@ function CreateRoomModal({
   };
   return (
     <div className="flex items-center justify-center">
-      <div className="fixed inset-0 flex items-center justify-center backdrop-blur-2xl bg-black/70 md:bg-black/80 z-50">
+      <motion.div
+        initial={{ opacity: 0, y: 100 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        exit={{ opacity: 0, y: 100 }}
+        className="fixed inset-0 flex items-center justify-center backdrop-blur-2xl bg-black/70 md:bg-black/80 z-50"
+      >
         {step === 1 && (
           <div className="bg-[#faf6f9] border border-gray-200 rounded-3xl p-4 w-full max-w-md mx-1 mb-2">
             <div className="flex items-center justify-between mb-4">
@@ -167,7 +174,7 @@ function CreateRoomModal({
             </p>
           </div>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 }

@@ -32,3 +32,13 @@ export type User = {
   chatRooms: string[];
   personalChatRooms: string[];
 };
+
+import message from "../assets/icons/newmessage.png";
+import system from "../assets/images/icon-dark.png";
+import agent from "../assets/icons/aiagent.png";
+
+export const NotificationImages = {
+  message,
+  system,
+  agent,
+};

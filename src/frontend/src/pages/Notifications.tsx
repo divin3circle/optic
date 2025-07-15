@@ -2,12 +2,17 @@ import { cn } from "@/lib/utils";
 import React, { useState } from "react";
 import { IoCheckmarkDoneOutline } from "react-icons/io5";
 import NotificationCard from "@/components/app/dashboard/NotificationCard";
-import useUserStore from "../../store/user";
+import { useNotifications } from "../../hooks/useNotifications";
+import Loading from "@/components/ui/Loading";
 
 function Notifications() {
   const [active, setActive] = useState<"all" | "messages">("all");
-  const user = useUserStore((state) => state.user);
-  console.log(user?.notifications);
+  const { notifications, isLoading } = useNotifications();
+
+  if (isLoading) {
+    return <Loading />;
+  }
+
   return (
     <div className="max-w-[800px] mx-auto my-0">
       <h1 className="text-2xl font-karla-bold text-primary">Notifications</h1>
@@ -44,8 +49,33 @@ function Notifications() {
       </div>
       <div className="flex flex-col gap-4 mt-4">
         <h1 className="text-gray-500 text-sm font-karla">Today</h1>
-        <NotificationCard />
+        {notifications.today.map((notification) => (
+          <NotificationCard
+            key={notification.notificationId}
+            notification={notification}
+          />
+        ))}
+        {notifications.today.length === 0 && (
+          <div className="flex items-center justify-center h-full">
+            <h1 className="text-gray-500 text-sm font-karla">
+              No new notifications
+            </h1>
+          </div>
+        )}
         <h1 className="text-gray-500 text-sm font-karla">Older</h1>
+        {notifications.older.map((notification) => (
+          <NotificationCard
+            key={notification.notificationId}
+            notification={notification}
+          />
+        ))}
+        {notifications.older.length === 0 && (
+          <div className="flex items-center justify-center h-full">
+            <h1 className="text-gray-500 text-sm font-karla">
+              No older notifications
+            </h1>
+          </div>
+        )}
       </div>
     </div>
   );

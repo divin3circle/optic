@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { backend } from "../utils/index.js";
-import { useAuth } from "@nfid/identitykit/react";
+import useUserStore from "../store/user.js";
 
 export function usePersonalChats() {
-  const { user } = useAuth();
+  const user = useUserStore((state) => state.user);
   if (!user) {
     return {
       messages: [],
@@ -19,9 +19,10 @@ export function usePersonalChats() {
   } = useQuery({
     queryKey: ["personal-messages"],
     queryFn: async () => {
-      const chatsIds = await getPersonalChatRoomsIds(
-        user.principal.toString() || ""
-      );
+      const chatsIds = user.personalChatRooms;
+      if (chatsIds.length === 0) {
+        return [];
+      }
       const messages = await Promise.all(
         chatsIds.map(getPersonalMessagesByChatId)
       );
@@ -35,9 +36,4 @@ export function usePersonalChats() {
 async function getPersonalMessagesByChatId(chatId: string) {
   const messages = await backend.get_personal_messages(chatId);
   return messages;
-}
-
-async function getPersonalChatRoomsIds(userId: string) {
-  const chatsIds = await backend.get_personal_chat_rooms(userId);
-  return chatsIds;
 }

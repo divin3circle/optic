@@ -1,7 +1,12 @@
-import React from "react";
 import ChatItem from "./ChatItem";
+import useUserStore from "../../../../store/user";
+import { usePersonalChats } from "../../../../hooks/useChats";
 
 function ChatList() {
+  const { messages, isLoading, error } = usePersonalChats();
+
+  console.log(messages);
+
   return (
     <div className="h-full bg-[#faf6f9] rounded-3xl p-2">
       <div className="flex flex-col gap-2 mb-4">

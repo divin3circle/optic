@@ -1,20 +1,43 @@
 import { IoCheckmarkDoneOutline } from "react-icons/io5";
-import dummy from "../../../../assets/images/message.webp";
+import { NotificationImages } from "../../../../types/user.js";
 import { WiMoonAltNew } from "react-icons/wi";
+import { Notification } from "../../../../types/user.js";
 
-function NotificationCard() {
+function NotificationCard({ notification }: { notification: Notification }) {
+  function getNotificationImage(notification: Notification) {
+    switch (notification.type) {
+      case "message":
+        return NotificationImages.message;
+      case "proposal":
+        return NotificationImages.agent;
+      case "system":
+        return NotificationImages.system;
+      default:
+        return NotificationImages.system;
+    }
+  }
   return (
     <div className="bg-[#faf9f6] rounded-3xl border border-gray-200 p-4 flex items-center gap-2 relative cursor-pointer hover:bg-[#fff] transition-all duration-300">
-      <img src={dummy} alt="dummy" className="w-14 h-14 rounded-xl" />
+      <img
+        src={getNotificationImage(notification)}
+        alt="dummy"
+        className="w-14 h-14 rounded-xl"
+      />
       <div className="flex flex-col">
         <h1 className="text-primary text-lg font-karla-bold">
-          You have a new message
+          {notification.title}
         </h1>
         <p className="text-gray-500 text-sm font-karla">
-          You have a new message from John Doe.
+          {notification.message}
         </p>
-        <p className="text-gray-500 text-xs font-karla">
-          June 13, 2025 12:00 PM
+        <p className="text-gray-500 text-xs font-karla ">
+          {new Intl.DateTimeFormat("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          }).format(new Date(Number(notification.timestamp)))}
         </p>
       </div>
 
