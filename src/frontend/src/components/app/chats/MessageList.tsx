@@ -6,10 +6,21 @@ import { usePersonalChats } from "../../../../hooks/useChats";
 import useChatStore from "../../../../store/chats";
 import Loading from "@/components/ui/Loading";
 import { Button } from "@/components/ui/button";
+import { List, AutoSizer } from "react-virtualized";
 
 function MessageList() {
   const { selectedChatId } = useChatStore();
   const { messages, isLoading } = usePersonalChats(selectedChatId);
+  const listRef = React.useRef<List>(null);
+
+  // Performance optimization: Only render visible messages
+
+  // Scroll to bottom when new messages arrive
+  React.useEffect(() => {
+    if (listRef.current && messages && messages.length > 0) {
+      listRef.current.scrollToRow(messages.length - 1);
+    }
+  }, [messages?.length]);
 
   if (isLoading) {
     return <Loading />;
@@ -46,16 +57,48 @@ function MessageList() {
         scrollbarColor: "#faf6f9",
       }}
     >
-      <div className="flex flex-col gap-2 flex-1 overflow-y-scroll hide-scrollbar">
+      <div className="flex flex-col gap-2 flex-1 overflow-hidden">
         {messages.length === 0 && (
           <div className="flex flex-col gap-2 items-center justify-center h-full">
             <p className="text-gray-500 text-sm font-karla">No messages</p>
           </div>
         )}
-        {messages.length > 0 &&
-          messages.map((message) => (
-            <MessageBubble key={message.messageId} message={message} />
-          ))}
+        {messages.length > 0 && (
+          <div className="flex-1">
+            <AutoSizer className="mb-12">
+              {({ height, width }: { height: number; width: number }) => (
+                <List
+                  ref={listRef}
+                  height={height}
+                  width={width}
+                  rowCount={messages.length}
+                  rowHeight={({ index }: { index: number }) => {
+                    // Estimate height based on message content length
+                    const message = messages[index];
+                    const baseHeight = 85; // Base height for message bubble
+                    const contentLength = message.content.length;
+                    const lines = Math.ceil(contentLength / 50); // Rough estimate: 50 chars per line
+                    return Math.max(baseHeight, lines * 40 + 60); // 20px per line + padding
+                  }}
+                  rowRenderer={({
+                    index,
+                    key,
+                    style,
+                  }: {
+                    index: number;
+                    key: string;
+                    style: React.CSSProperties;
+                  }) => (
+                    <div key={key} style={style} className="px-2">
+                      <MessageBubble message={messages[index]} />
+                    </div>
+                  )}
+                  overscanRowCount={5} // Render 5 extra rows above/below for smooth scrolling
+                />
+              )}
+            </AutoSizer>
+          </div>
+        )}
       </div>
       <MessageInputBar />
     </motion.div>

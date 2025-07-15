@@ -22,7 +22,7 @@ function ChatItem({
   return (
     <div
       onClick={handleClick}
-      className="hover:border-[.5px] border-gray-200 flex items-center justify-between gap-2 pb-4 my-2 cursor-pointer hover:bg-[#fff] rounded-xl p-2 transition-all duration-300"
+      className="border-[.5px] border-gray-200 flex items-center justify-between gap-2 pb-4 my-2 cursor-pointer bg-[#fff] rounded-3xl p-2 transition-all duration-300"
     >
       <div className="flex items-center gap-2">
         <img

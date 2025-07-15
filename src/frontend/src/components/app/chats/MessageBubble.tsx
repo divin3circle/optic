@@ -17,13 +17,13 @@ function MessageBubble({ message }: { message: PersonalMessage }) {
   return (
     <div
       className={cn(
-        "flex flex-col w-full my-2",
+        "flex flex-col w-full mb-4",
         isUser ? "items-end" : "items-start"
       )}
     >
       <div
         className={cn(
-          "flex flex-col gap-2 w-3/4 md:w-1/4 py-3 px-2 text-wrap text-primary",
+          "flex flex-col gap-2 max-w-[75%] py-3 px-2 text-wrap text-primary",
           isUser
             ? "items-start bg-[#e8492a] rounded-tr-3xl rounded-tl-3xl rounded-bl-3xl"
             : "items-start bg-[#faf6f9] rounded-tl-3xl rounded-tr-3xl rounded-br-3xl border border-gray-200"
@@ -48,9 +48,6 @@ function MessageBubble({ message }: { message: PersonalMessage }) {
           {sendingMessage === message.content
             ? "Sending..."
             : new Intl.DateTimeFormat("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
                 hour: "2-digit",
                 minute: "2-digit",
               }).format(new Date(Number(message.timestamp)))}
