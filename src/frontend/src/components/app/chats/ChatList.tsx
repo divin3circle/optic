@@ -1,11 +1,12 @@
 import ChatItem from "./ChatItem";
 import useUserStore from "../../../../store/user";
 import { usePersonalChats } from "../../../../hooks/useChats";
+import { usePersonalChatRooms } from "../../../../hooks/usePersonalChatRooms";
 
 function ChatList() {
-  const { messages, isLoading, error } = usePersonalChats();
+  const personalChatRooms = usePersonalChatRooms();
 
-  console.log(messages);
+  console.log(personalChatRooms);
 
   return (
     <div className="h-full bg-[#faf6f9] rounded-3xl p-2">
