@@ -1,22 +1,48 @@
 import { Button } from "@/components/ui/button";
 import dummy from "../../../../assets/images/message.webp";
-import { FaPlus } from "react-icons/fa";
+import { FaAngleLeft, FaPlus } from "react-icons/fa";
 import { useState } from "react";
 import CreateRoomModal from "./CreateRoomModal";
+import useChatStore from "../../../../store/chats.js";
+import { motion } from "framer-motion";
 
 function ChatHeader() {
+  const { setSelectedChatId, chatHeaderProps } = useChatStore();
   return (
-    <div className="flex items-center justify-between rounded-3xl bg-[#faf6f9] p-2 h-20 border border-gray-200">
+    <motion.div
+      className="flex items-center justify-between rounded-3xl bg-[#faf6f9] p-2 h-20 border border-gray-200"
+      initial={{ opacity: 0, y: 100 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      exit={{ opacity: 0, y: 100 }}
+    >
       <div className="flex items-center gap-2">
+        <div className="flex md:hidden items-center gap-2">
+          <FaAngleLeft
+            className="w-6 h-6 text-primary"
+            onClick={() => setSelectedChatId(null)}
+          />
+        </div>
         <div className="relative">
-          <img src={dummy} alt="dummy" className="w-16 h-16 rounded-full" />
-          <div className="absolute bottom-2 right-1 bg-green-500 w-2 h-2 rounded-full"></div>
+          <img
+            src={chatHeaderProps?.profileImage || dummy}
+            alt={chatHeaderProps?.username || "user"}
+            className="w-16 h-16 rounded-full"
+          />
+          {chatHeaderProps?.chatStatus === "online" && (
+            <div className="absolute bottom-2 right-1 bg-green-500 w-2 h-2 rounded-full"></div>
+          )}
+          {chatHeaderProps?.chatStatus === "offline" && (
+            <div className="absolute bottom-2 right-1 bg-gray-500 w-2 h-2 rounded-full"></div>
+          )}
         </div>
         <div className="flex flex-col">
           <h1 className="text-gray-700 text-lg font-karla-semi-bold">
-            Chat Item
+            {chatHeaderProps?.username}
           </h1>
-          <p className="text-gray-500 text-sm font-karla">Online</p>
+          <p className="text-gray-500 text-sm font-karla">
+            {chatHeaderProps?.chatStatus.toLowerCase()}
+          </p>
         </div>
       </div>
       <div className="flex items-center justify-between gap-2">
@@ -38,7 +64,7 @@ function ChatHeader() {
           </Button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 

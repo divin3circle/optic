@@ -4,25 +4,23 @@ import ChatWindow from "../components/app/chats/ChatWindow";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import logo from "../../assets/images/icon.png";
-
-type selectedChatId = string | null;
+import useChatStore from "../../store/chats";
 
 function DirectMessages() {
   const isMobile = useChatIsMobile();
-
-  const selectedChatIdMock: selectedChatId = "null";
+  const { selectedChatId } = useChatStore();
 
   return (
     <div className="flex h-screen w-full">
-      {(!isMobile || !selectedChatIdMock) && (
+      {(!isMobile || !selectedChatId) && (
         <div className={cn("w-full lg:w-[40%]")}>
           <ChatSidebar />
         </div>
       )}
 
-      {(!isMobile || selectedChatIdMock) && (
+      {(!isMobile || selectedChatId) && (
         <div className={cn("w-full lg:w-[60%]")}>
-          {selectedChatIdMock ? (
+          {selectedChatId ? (
             <ChatWindow />
           ) : (
             <div className="flex items-center justify-center flex-col h-full">

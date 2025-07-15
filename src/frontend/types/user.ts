@@ -14,14 +14,14 @@ export type User = {
   profileImage: string;
   evmAddress: string;
   btcAddress: string;
-  chatStatus: "online" | "offline";
+  chatStatus: "online" | "offline" | string;
   lastOnline: bigint;
   reputationScore: number;
   subscriptionStatus: {
     type: string;
     expiresIn: bigint;
   };
-  theme: "light" | "dark";
+  theme: "light" | "dark" | string;
   balances: {
     icp: number;
     ckBTC: number;
@@ -31,6 +31,13 @@ export type User = {
   notifications: Notification[];
   chatRooms: string[];
   personalChatRooms: string[];
+};
+
+export type PersonalMessage = {
+  messageId: string;
+  content: string;
+  timestamp: bigint;
+  read: boolean;
 };
 
 import message from "../assets/icons/newmessage.png";

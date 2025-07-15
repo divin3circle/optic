@@ -75,6 +75,26 @@ export class MessagesService {
     return true;
   }
 
+  @query([IDL.Text], IDL.Opt(PersonalChatRoom))
+  get_personal_chat_room(pcr_id: string): [PersonalChatRoom] | [] {
+    const pcr = personal_chat_rooms.get(pcr_id);
+    if (!pcr) {
+      return [];
+    }
+    return [pcr];
+  }
+
+  @query([IDL.Text], IDL.Vec(User))
+  get_personal_chat_room_participants(pcr_id: string): User[] | [] {
+    const pcr = personal_chat_rooms.get(pcr_id);
+    if (!pcr) {
+      return [];
+    }
+    return pcr.participants
+      .map((participant) => users.get(participant.toString()) || null)
+      .filter((user) => user !== null);
+  }
+
   @update([IDL.Text, IDL.Text, IDL.Principal], IDL.Bool)
   send_personal_message(
     pcr_id: string,

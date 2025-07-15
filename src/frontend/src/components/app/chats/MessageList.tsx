@@ -1,10 +1,15 @@
 import React from "react";
 import MessageBubble from "./MessageBubble";
 import MessageInputBar from "./MessageInputBar";
+import { motion } from "framer-motion";
 
 function MessageList() {
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: 100 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      exit={{ opacity: 0, y: 100 }}
       className="h-full w-full rounded-3xl bg-[#faf6f9] p-0 md:p-2 flex flex-col gap-2 hide-scrollbar"
       style={{
         scrollbarColor: "#faf6f9",
@@ -31,7 +36,7 @@ function MessageList() {
         <MessageBubble isSender={true} />
       </div>
       <MessageInputBar />
-    </div>
+    </motion.div>
   );
 }
 
