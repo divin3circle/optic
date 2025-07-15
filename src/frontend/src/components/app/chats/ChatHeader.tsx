@@ -10,7 +10,7 @@ function ChatHeader() {
   const { setSelectedChatId, chatHeaderProps } = useChatStore();
   return (
     <motion.div
-      className="flex items-center justify-between rounded-3xl bg-[#faf6f9] p-2 h-20 border border-gray-200"
+      className="sticky top-0 z-10 md:flex items-center justify-between rounded-3xl bg-[#faf6f9] p-2 h-20 border border-gray-200"
       initial={{ opacity: 0, y: 100 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
@@ -45,7 +45,7 @@ function ChatHeader() {
           </p>
         </div>
       </div>
-      <div className="flex items-center justify-between gap-2">
+      <div className="md:flex hidden items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"

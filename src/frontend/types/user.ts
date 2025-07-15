@@ -34,6 +34,7 @@ export type User = {
 };
 
 export type PersonalMessage = {
+  receiver: string;
   messageId: string;
   content: string;
   timestamp: bigint;

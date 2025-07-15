@@ -73,12 +73,14 @@ export type ChatMessage = {
 };
 
 export const PersonalMessage = IDL.Record({
+  receiver: IDL.Text,
   messageId: IDL.Text,
   content: IDL.Text,
   timestamp: IDL.Int,
   read: IDL.Bool,
 });
 export type PersonalMessage = {
+  receiver: string;
   messageId: string;
   content: string;
   timestamp: bigint;

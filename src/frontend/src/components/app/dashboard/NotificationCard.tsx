@@ -2,6 +2,7 @@ import { IoCheckmarkDoneOutline } from "react-icons/io5";
 import { NotificationImages } from "../../../../types/user.js";
 import { WiMoonAltNew } from "react-icons/wi";
 import { Notification } from "../../../../types/user.js";
+import { motion } from "framer-motion";
 
 function NotificationCard({ notification }: { notification: Notification }) {
   function getNotificationImage(notification: Notification) {
@@ -17,7 +18,13 @@ function NotificationCard({ notification }: { notification: Notification }) {
     }
   }
   return (
-    <div className="bg-[#faf9f6] rounded-3xl border border-gray-200 p-4 flex items-center gap-2 relative cursor-pointer hover:bg-[#fff] transition-all duration-300">
+    <motion.div
+      initial={{ opacity: 0, y: 100 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      exit={{ opacity: 0, y: 100 }}
+      className="bg-[#faf9f6] rounded-3xl border border-gray-200 p-4 flex items-center gap-2 relative cursor-pointer hover:bg-[#fff] transition-all duration-300"
+    >
       <img
         src={getNotificationImage(notification)}
         alt="dummy"
@@ -42,7 +49,7 @@ function NotificationCard({ notification }: { notification: Notification }) {
       </div>
 
       <WiMoonAltNew className="text-[#e8492a] text-sm absolute right-2 top-2" />
-    </div>
+    </motion.div>
   );
 }
 

@@ -9,10 +9,85 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { EMOJI_TYPES } from "../../../../mock/emojis";
+import useChatStore from "../../../../store/chats";
+import { backend } from "../../../../utils";
+import { Principal } from "@dfinity/principal";
+import { useQueryClient } from "@tanstack/react-query";
+import { PersonalMessage } from "../../../../types/user";
+import { toast } from "sonner";
 
 function MessageInputBar() {
+  const {
+    setMessageBeingSent,
+    chatHeaderProps,
+    setSendingMessage,
+    sendingMessage,
+  } = useChatStore();
+  const { selectedChatId } = useChatStore();
   const [userMessage, setUserMessage] = useState("");
   const [selectedEmoji, setSelectedEmoji] = useState("");
+  const queryClient = useQueryClient();
+
+  async function handleSendMessage() {
+    if (!selectedChatId) {
+      console.error("No chat selected");
+      return;
+    }
+    if (!userMessage) {
+      console.error("No message to send");
+      return;
+    }
+    if (!chatHeaderProps) {
+      console.error("No chat header props");
+      return;
+    }
+    if (userMessage.length > 100) {
+      toast.error("Message must be less than 100 characters");
+      return;
+    }
+
+    try {
+      setSendingMessage(userMessage);
+      const tempMessage = {
+        receiver: chatHeaderProps.id,
+        messageId: `temp-${Date.now()}`, // Give it a temporary ID
+        content: userMessage,
+        timestamp: BigInt(Date.now()),
+        read: false,
+      };
+
+      // Optimistically update the cache
+      queryClient.setQueryData(
+        ["personal-messages", selectedChatId],
+        (oldMessages: PersonalMessage[] = []) => [...oldMessages, tempMessage]
+      );
+
+      setMessageBeingSent(tempMessage);
+
+      const sent = await backend.send_personal_message(
+        selectedChatId,
+        userMessage,
+        Principal.fromText(chatHeaderProps.id)
+      );
+
+      // Invalidate to refetch and get the real message from backend
+      queryClient.invalidateQueries({
+        queryKey: ["personal-messages", selectedChatId],
+      });
+    } catch (error) {
+      // On error, remove the optimistic message
+      queryClient.setQueryData(
+        ["personal-messages", selectedChatId],
+        (oldMessages: PersonalMessage[] = []) =>
+          oldMessages.filter((msg) => msg.messageId !== `temp-${Date.now()}`)
+      );
+    } finally {
+      setUserMessage("");
+      setSendingMessage(null);
+      setMessageBeingSent(null);
+    }
+  }
+
   return (
     <div className="sticky bottom-0 left-0 right-0 p-2 flex items-center justify-between gap-2 border border-gray-200 rounded-3xl shadow-2xl backdrop-blur-2xl ">
       <div className="flex items-center justify-between border border-gray-300 rounded-3xl bg-white w-full px-4">
@@ -21,6 +96,12 @@ function MessageInputBar() {
           className="border-none shadow-none text-primary h-12"
           value={userMessage}
           onChange={(e) => setUserMessage(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              handleSendMessage();
+            }
+          }}
         />
         <Popover>
           <PopoverTrigger>
@@ -53,7 +134,10 @@ function MessageInputBar() {
         </Popover>
       </div>
       <div className="">
-        <Button className="bg-[#e8492a] border-[#e8492a] border-2 rounded-2xl hover:bg-transparent hover:text-primary py-4">
+        <Button
+          className="bg-[#e8492a] border-[#e8492a] border-2 rounded-2xl hover:bg-transparent hover:text-primary py-4"
+          onClick={handleSendMessage}
+        >
           <AiOutlineSend className="w-10 h-10 " />
         </Button>
       </div>

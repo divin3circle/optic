@@ -5,8 +5,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import "@nfid/identitykit/react/styles.css";
 import { IdentityKitProvider } from "@nfid/identitykit/react";
 import { IdentityKitTheme } from "@nfid/identitykit/react";
-import Loading from "@/components/ui/Loading"; // Make sure you have this
+import Loading from "@/components/ui/Loading";
 import RequireUser from "./components/app/dashboard/RequireUser";
+import { Toaster } from "@/components/ui/sonner";
 
 const Landing = lazy(() => import("./pages/Landing"));
 const Signup = lazy(() => import("./pages/Signup"));
@@ -59,6 +60,7 @@ function App() {
                 </Route>
               </Routes>
             </Suspense>
+            <Toaster position="top-center" richColors />
           </Router>
         </main>
       </QueryClientProvider>

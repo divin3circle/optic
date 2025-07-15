@@ -41,7 +41,11 @@ function ChatItem({
       </div>
       <div className="flex flex-col gap-2 justify-end items-end">
         <p className="text-gray-500 text-xs font-karla">
-          {lastMessage?.timestamp.toString()}
+          {lastMessage &&
+            new Intl.DateTimeFormat("en-US", {
+              hour: "2-digit",
+              minute: "2-digit",
+            }).format(new Date(Number(lastMessage.timestamp)))}
         </p>
         {lastMessage?.read && (
           <p className="text-xs font-karla bg-[#e8492a] text-white rounded-full p-1 w-6 h-6 flex items-center justify-center">

@@ -103,6 +103,7 @@ export class MessagesService {
   ): boolean {
     const message_id = generate_message_id();
     const message: PersonalMessage = {
+      receiver: receiver_id.toString(),
       messageId: message_id,
       content: content,
       timestamp: BigInt(Date.now()),
