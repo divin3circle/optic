@@ -6,6 +6,7 @@ import { ArrowLeft } from "lucide-react";
 import GroupMembersView from "./GroupMembersView";
 import { Button } from "@/components/ui/button";
 import GroupTreasury from "./GroupTreasury";
+import { GroupContributionGraph } from "./GroupContributionGraph";
 
 function GroupProfile() {
   const { groupHeaderProps, setViewingGroupProfile } = useChatStore();
@@ -78,6 +79,7 @@ function GroupProfile() {
           <GroupMembersView members={groupHeaderProps.members} />
         </div>
         <GroupTreasury />
+        <GroupContributionGraph />
       </div>
     </motion.div>
   );
