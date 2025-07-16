@@ -18,6 +18,7 @@ const DirectMessages = lazy(() => import("./pages/DirectMessages"));
 const Notifications = lazy(() => import("./pages/Notifications"));
 const Wallet = lazy(() => import("./pages/Wallet"));
 const Settings = lazy(() => import("./pages/Settings"));
+const Groups = lazy(() => import("./pages/Groups"));
 
 const queryClient = new QueryClient();
 
@@ -51,6 +52,7 @@ function App() {
                     path="/dashboard/messages"
                     element={<DirectMessages />}
                   />
+                  <Route path="/dashboard/groups" element={<Groups />} />
                   <Route
                     path="/dashboard/notifications"
                     element={<Notifications />}
