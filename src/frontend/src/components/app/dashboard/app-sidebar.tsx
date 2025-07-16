@@ -45,8 +45,8 @@ const items = [
   },
   {
     title: "Settings",
-    url: "/dashboard/settings",
-    icon: <FaCog size={64} className="text-[#faf9f6]" />,
+    url: "/dashboard/profile",
+    icon: <FaUser size={64} className="text-[#faf9f6]" />,
   },
   {
     title: "Wallet",
@@ -95,16 +95,9 @@ export function AppSidebar() {
             <Button
               variant="outline"
               size="icon"
-              className="w-10 h-10 rounded-full bg-[#e8492a] text-[#faf9f6] border-none"
+              className="rounded-3xl bg-[#e8492a] text-[#faf9f6] border-none w-full"
             >
               <FaSignOutAlt />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              className="w-10 h-10 rounded-full bg-[#e8492a] text-[#faf9f6] border-none"
-            >
-              <FaUser />
             </Button>
           </SidebarGroupLabel>
         </SidebarGroup>

@@ -4,12 +4,14 @@ import { ChatMessage, ChatRoom, PersonalMessage, User } from "../types/user";
 type ChatStoreState = {
   selectedChatId: string | null;
   selectedGroupChatId: string | null;
+  viewingGroupProfile: boolean;
   chatHeaderProps: User | null;
   groupHeaderProps: ChatRoom | null;
   messageBeingSent: PersonalMessage | null;
   groupMessageBeingSent: ChatMessage | null;
   sendingMessage: string | null;
   setSelectedChatId: (chatId: string | null) => void;
+  setViewingGroupProfile: (viewing: boolean) => void;
   setChatHeaderProps: (props: User | null) => void;
   setGroupHeaderProps: (props: ChatRoom | null) => void;
   setMessageBeingSent: (message: PersonalMessage | null) => void;
@@ -21,12 +23,15 @@ type ChatStoreState = {
 const useChatStore = create<ChatStoreState>((set) => ({
   selectedChatId: null,
   selectedGroupChatId: null,
+  viewingGroupProfile: false,
   chatHeaderProps: null,
   groupHeaderProps: null,
   messageBeingSent: null,
   groupMessageBeingSent: null,
   sendingMessage: null,
   setSelectedChatId: (chatId: string | null) => set({ selectedChatId: chatId }),
+  setViewingGroupProfile: (viewing: boolean) =>
+    set({ viewingGroupProfile: viewing }),
   setChatHeaderProps: (props: User | null) => set({ chatHeaderProps: props }),
   setGroupHeaderProps: (props: ChatRoom | null) =>
     set({ groupHeaderProps: props }),

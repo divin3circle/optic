@@ -5,7 +5,8 @@ import useChatStore from "../../../../store/chats.js";
 import { motion } from "framer-motion";
 
 function GroupHeader() {
-  const { setSelectedGroupChatId, groupHeaderProps } = useChatStore();
+  const { setSelectedGroupChatId, groupHeaderProps, setViewingGroupProfile } =
+    useChatStore();
   return (
     <motion.div
       className="sticky top-0 z-10 md:flex items-center justify-between rounded-3xl bg-[#faf6f9] p-2 h-20 border border-gray-200"
@@ -28,8 +29,11 @@ function GroupHeader() {
             className="w-14 h-14 md:w-16 md:h-16 rounded-full object-cover"
           />
         </div>
-        <div className="flex flex-col">
-          <h1 className="text-gray-700 text-lg font-karla-semi-bold">
+        <div
+          className="flex flex-col cursor-pointer"
+          onClick={() => setViewingGroupProfile(true)}
+        >
+          <h1 className="text-gray-700 text-lg font-karla-semi-bold underline">
             {groupHeaderProps?.name}
           </h1>
           <p className="text-gray-500 text-sm font-karla">

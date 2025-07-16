@@ -1,9 +1,6 @@
-"use client";
-
-import { TrendingUp } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, LabelList, XAxis } from "recharts";
 
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
@@ -27,9 +24,14 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function EarningsChat() {
+export function GroupEarningsGraph() {
   return (
-    <Card className="shadow-none border-none">
+    <Card className="shadow-none bg-[#faf6f9] border border-gray-200 rounded-3xl mt-4">
+      <CardHeader className="text-center">
+        <CardTitle className="text-lg text-gray-600 font-karla">
+          Room Earnings Graph
+        </CardTitle>
+      </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="w-full">
           <BarChart

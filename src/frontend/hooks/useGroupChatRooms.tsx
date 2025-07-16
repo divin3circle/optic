@@ -69,6 +69,5 @@ async function getGroupChatMessages(
   limit: bigint
 ): Promise<ChatMessage[]> {
   const messages = await backend.get_group_chat_messages(gcr_id, BigInt(limit));
-  console.log(messages);
   return messages;
 }

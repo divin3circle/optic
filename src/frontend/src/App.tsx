@@ -58,7 +58,7 @@ function App() {
                     element={<Notifications />}
                   />
                   <Route path="/dashboard/wallet" element={<Wallet />} />
-                  <Route path="/dashboard/settings" element={<Settings />} />
+                  <Route path="/dashboard/profile" element={<Settings />} />
                 </Route>
               </Routes>
             </Suspense>

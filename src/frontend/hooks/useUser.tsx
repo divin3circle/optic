@@ -33,3 +33,14 @@ export function useGetUser(id: string) {
   });
   return { data, isLoading };
 }
+
+export function useGetUsersByPrincipal(ids: Principal[]) {
+  const { data, isLoading } = useQuery({
+    queryKey: ["users"],
+    queryFn: async () => {
+      const users = await Promise.all(ids.map((id) => backend.get_user(id)));
+      return users;
+    },
+  });
+  return { data, isLoading };
+}

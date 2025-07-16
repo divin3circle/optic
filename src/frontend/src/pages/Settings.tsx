@@ -37,13 +37,13 @@ function Settings() {
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <button className="bg-[#faf6f9] text-sm md:text-base text-primary border border-gray-200 py-2 px-4 rounded-md font-karla-bold">
-            Cancel
+        <div className="flex items-end gap-2 flex-col">
+          <button className="bg-[#e8492a] text-sm md:text-base text-white py-2 w-1/2 md:w-1/2 rounded-md font-karla-bold ">
+            Claim Rewards
           </button>
-          <button className="bg-primary text-sm md:text-base text-white py-2 px-4 rounded-md font-karla-bold ">
-            Save
-          </button>
+          <p className="text-gray-500 text-sm font-karla">
+            You have 1 ICP in claimable rewards.
+          </p>
         </div>
       </div>
       <h1 className="text-primary text-2xl font-karla-bold mt-8">
