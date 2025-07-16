@@ -42,7 +42,7 @@ async function getGroupChatData(gcr_id: string): Promise<{
 
 export function useGroupChatMessages(
   selectedGroupChatId: string | null,
-  limit: number
+  limit: bigint
 ) {
   if (!selectedGroupChatId) {
     return {
@@ -52,18 +52,21 @@ export function useGroupChatMessages(
     };
   }
   const { data, isLoading } = useQuery({
-    queryKey: ["groupChatMessages"],
-    queryFn: () => getGroupChatMessages(selectedGroupChatId, limit),
+    queryKey: ["group-messages", selectedGroupChatId],
+    queryFn: async () => {
+      const messages = await getGroupChatMessages(selectedGroupChatId, limit);
+      return messages;
+    },
   });
   return {
-    messages: data || [],
+    messages: data,
     isLoading,
   };
 }
 
 async function getGroupChatMessages(
   gcr_id: string,
-  limit: number
+  limit: bigint
 ): Promise<ChatMessage[]> {
   const messages = await backend.get_group_chat_messages(gcr_id, BigInt(limit));
   console.log(messages);

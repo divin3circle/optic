@@ -11,7 +11,10 @@ import { useGroupChatMessages } from "../../../../hooks/useGroupChatRooms";
 
 function GroupMessageList() {
   const { selectedGroupChatId } = useChatStore();
-  const { messages, isLoading } = useGroupChatMessages(selectedGroupChatId, 10);
+  const { messages, isLoading } = useGroupChatMessages(
+    selectedGroupChatId,
+    BigInt(10)
+  );
   const listRef = React.useRef<List>(null);
 
   // Performance optimization: Only render visible messages
@@ -76,7 +79,7 @@ function GroupMessageList() {
                   rowHeight={({ index }: { index: number }) => {
                     // Estimate height based on message content length
                     const message = messages[index];
-                    const baseHeight = 85; // Base height for message bubble
+                    const baseHeight = 125; // Base height for message bubble
                     const contentLength = message.content.length;
                     const lines = Math.ceil(contentLength / 50); // Rough estimate: 50 chars per line
                     return Math.max(baseHeight, lines * 40 + 60); // 20px per line + padding

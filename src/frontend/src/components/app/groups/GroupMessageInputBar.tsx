@@ -11,19 +11,20 @@ import {
 import { EMOJI_TYPES } from "../../../../mock/emojis";
 import useChatStore from "../../../../store/chats";
 import { backend } from "../../../../utils";
-import { Principal } from "@dfinity/principal";
 import { useQueryClient } from "@tanstack/react-query";
-import { PersonalMessage } from "../../../../types/user";
+import { ChatMessage, PersonalMessage } from "../../../../types/user";
 import { toast } from "sonner";
 import useUserStore from "../../../../store/user";
+import { Principal } from "@dfinity/principal";
 
 function GroupMessageInputBar() {
   const user = useUserStore((state) => state.user);
   const {
     setMessageBeingSent,
-    chatHeaderProps,
+    groupHeaderProps,
     setSendingMessage,
     sendingMessage,
+    setGroupMessageBeingSent,
   } = useChatStore();
   const { selectedGroupChatId } = useChatStore();
   const [userMessage, setUserMessage] = useState("");
@@ -39,7 +40,7 @@ function GroupMessageInputBar() {
       console.error("No message to send");
       return;
     }
-    if (!chatHeaderProps) {
+    if (!groupHeaderProps) {
       console.error("No chat header props");
       return;
     }
@@ -54,21 +55,23 @@ function GroupMessageInputBar() {
 
     try {
       setSendingMessage(userMessage);
-      const tempMessage = {
-        receiver: selectedGroupChatId,
+      const tempMessage: ChatMessage = {
         messageId: `temp-${Date.now()}`, // Give it a temporary ID
+        roomId: selectedGroupChatId,
+        sender: Principal.fromText(user.id),
         content: userMessage,
         timestamp: BigInt(Date.now()),
-        read: false,
+        reactions: [],
+        replies: [],
       };
 
       // Optimistically update the cache
       queryClient.setQueryData(
         ["group-messages", selectedGroupChatId],
-        (oldMessages: PersonalMessage[] = []) => [...oldMessages, tempMessage]
+        (oldMessages: ChatMessage[] = []) => [...oldMessages, tempMessage]
       );
 
-      setMessageBeingSent(tempMessage);
+      setGroupMessageBeingSent(tempMessage);
 
       const sent = await backend.send_group_message(
         selectedGroupChatId,
@@ -90,7 +93,7 @@ function GroupMessageInputBar() {
     } finally {
       setUserMessage("");
       setSendingMessage(null);
-      setMessageBeingSent(null);
+      setGroupMessageBeingSent(null);
     }
   }
 

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { ChatRoom, PersonalMessage, User } from "../types/user";
+import { ChatMessage, ChatRoom, PersonalMessage, User } from "../types/user";
 
 type ChatStoreState = {
   selectedChatId: string | null;
@@ -7,11 +7,13 @@ type ChatStoreState = {
   chatHeaderProps: User | null;
   groupHeaderProps: ChatRoom | null;
   messageBeingSent: PersonalMessage | null;
+  groupMessageBeingSent: ChatMessage | null;
   sendingMessage: string | null;
   setSelectedChatId: (chatId: string | null) => void;
   setChatHeaderProps: (props: User | null) => void;
   setGroupHeaderProps: (props: ChatRoom | null) => void;
   setMessageBeingSent: (message: PersonalMessage | null) => void;
+  setGroupMessageBeingSent: (message: ChatMessage | null) => void;
   setSendingMessage: (sending: string | null) => void;
   setSelectedGroupChatId: (groupChatId: string | null) => void;
 };
@@ -22,6 +24,7 @@ const useChatStore = create<ChatStoreState>((set) => ({
   chatHeaderProps: null,
   groupHeaderProps: null,
   messageBeingSent: null,
+  groupMessageBeingSent: null,
   sendingMessage: null,
   setSelectedChatId: (chatId: string | null) => set({ selectedChatId: chatId }),
   setChatHeaderProps: (props: User | null) => set({ chatHeaderProps: props }),
@@ -29,6 +32,8 @@ const useChatStore = create<ChatStoreState>((set) => ({
     set({ groupHeaderProps: props }),
   setMessageBeingSent: (message: PersonalMessage | null) =>
     set({ messageBeingSent: message }),
+  setGroupMessageBeingSent: (message: ChatMessage | null) =>
+    set({ groupMessageBeingSent: message }),
   setSendingMessage: (sending: string | null) =>
     set({ sendingMessage: sending }),
   setSelectedGroupChatId: (groupChatId: string | null) =>

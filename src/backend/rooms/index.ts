@@ -121,7 +121,10 @@ export class GroupChatService {
   }
 
   @query([IDL.Text, IDL.Int], IDL.Vec(ChatMessage))
-  get_group_chat_messages(group_chat_id: string, limit: number): ChatMessage[] {
+  get_group_chat_messages(group_chat_id: string, limit: bigint): ChatMessage[] {
+    if (!limit) {
+      limit = BigInt(10);
+    }
     const chat_room = chat_rooms.get(group_chat_id);
     if (!chat_room) {
       log("The chat room was not found", {
@@ -130,7 +133,7 @@ export class GroupChatService {
       return [];
     }
     const offSetMessageIds = chat_room.messages.slice(
-      chat_room.messages.length - limit
+      chat_room.messages.length - Number(limit)
     );
     const messages = offSetMessageIds.map((message_id) => {
       return group_messages.get(message_id) || null;
