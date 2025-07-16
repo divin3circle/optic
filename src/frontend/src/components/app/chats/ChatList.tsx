@@ -22,13 +22,6 @@ function ChatList() {
   return (
     <div className="h-full bg-[#faf6f9] rounded-3xl p-2">
       <div className="flex flex-col gap-2 mb-4">
-        <h1 className="text-gray-500 text-lg font-karla">Group Chats</h1>
-        <p className="text-gray-500 text-sm font-karla text-center">
-          No group chats.
-        </p>
-      </div>
-      <div className="flex flex-col gap-2 mb-4">
-        <h1 className="text-gray-500 text-lg font-karla">All</h1>
         <div className="flex flex-col gap-2">
           {personalChatRooms.map(
             (personalChatRoom) =>
@@ -40,6 +33,13 @@ function ChatList() {
                   pcr_id={personalChatRoom.pcr_id}
                 />
               )
+          )}
+          {personalChatRooms.length === 0 && (
+            <div className="flex flex-col gap-2">
+              <h1 className="text-gray-500 text-lg font-karla">
+                No personal chats
+              </h1>
+            </div>
           )}
         </div>
       </div>

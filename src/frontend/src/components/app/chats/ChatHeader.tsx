@@ -27,7 +27,7 @@ function ChatHeader() {
           <img
             src={chatHeaderProps?.profileImage || dummy}
             alt={chatHeaderProps?.username || "user"}
-            className="w-16 h-16 rounded-full"
+            className="w-14 h-14 md:w-16 md:h-16 rounded-full object-cover"
           />
           {chatHeaderProps?.chatStatus === "online" && (
             <div className="absolute bottom-2 right-1 bg-green-500 w-2 h-2 rounded-full"></div>

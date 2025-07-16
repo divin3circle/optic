@@ -33,7 +33,7 @@ function MessageInputBar() {
       console.error("No chat selected");
       return;
     }
-    if (!userMessage) {
+    if (userMessage.length === 0) {
       console.error("No message to send");
       return;
     }
@@ -137,6 +137,7 @@ function MessageInputBar() {
         <Button
           className="bg-[#e8492a] border-[#e8492a] border-2 rounded-2xl hover:bg-transparent hover:text-primary py-4"
           onClick={handleSendMessage}
+          disabled={userMessage.length === 0}
         >
           <AiOutlineSend className="w-10 h-10 " />
         </Button>

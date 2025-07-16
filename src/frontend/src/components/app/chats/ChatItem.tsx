@@ -22,13 +22,13 @@ function ChatItem({
   return (
     <div
       onClick={handleClick}
-      className="border-[.5px] border-gray-200 flex items-center justify-between gap-2 pb-4 my-2 cursor-pointer bg-[#fff] rounded-3xl p-2 transition-all duration-300"
+      className="border-[.5px] border-gray-200 flex items-center justify-between gap-2 my-2 cursor-pointer bg-[#fff] rounded-3xl p-2 transition-all duration-300"
     >
       <div className="flex items-center gap-2">
         <img
           src={sender.profileImage || dummy}
           alt="dummy"
-          className="w-12 h-12 rounded-full"
+          className="w-14 h-14 md:w-12 md:h-12 rounded-full object-cover"
         />
         <div className="flex flex-col">
           <h1 className="text-gray-700 text-sm font-karla-semi-bold">
