@@ -13,7 +13,7 @@ function GroupMessageList() {
   const { selectedGroupChatId } = useChatStore();
   const { messages, isLoading } = useGroupChatMessages(
     selectedGroupChatId,
-    BigInt(10)
+    BigInt(100)
   );
   const listRef = React.useRef<List>(null);
 
