@@ -1,22 +1,28 @@
 import dummy from "../../../../assets/images/message.webp";
-import { User } from "../../../../types/user";
+import { ChatRoom, User } from "../../../../types/user";
 import { PersonalMessage } from "../../../../types/user";
 import useChatStore from "../../../../store/chats.js";
 
 function GroupItem({
-  sender,
-  lastMessage,
-  pcr_id,
+  name,
+  members,
+  profileImage,
+  treasuryToken,
+  id,
+  room,
 }: {
-  sender: User;
-  lastMessage: PersonalMessage | null;
-  pcr_id: string;
+  name: string;
+  members: number;
+  profileImage: string;
+  treasuryToken: string;
+  id: string;
+  room: ChatRoom;
 }) {
-  const { setSelectedChatId, setChatHeaderProps } = useChatStore();
+  const { setSelectedGroupChatId, setGroupHeaderProps } = useChatStore();
 
   const handleClick = () => {
-    setSelectedChatId(pcr_id);
-    setChatHeaderProps(sender);
+    setSelectedGroupChatId(id);
+    setGroupHeaderProps(room);
   };
 
   return (
@@ -26,32 +32,21 @@ function GroupItem({
     >
       <div className="flex items-center gap-2">
         <img
-          src={sender.profileImage || dummy}
+          src={profileImage || dummy}
           alt="dummy"
           className="w-14 h-14 md:w-12 md:h-12 rounded-full object-cover"
         />
         <div className="flex flex-col">
-          <h1 className="text-gray-700 text-sm font-karla-semi-bold">
-            {sender.username}
-          </h1>
+          <h1 className="text-gray-700 text-sm font-karla-semi-bold">{name}</h1>
           <p className="text-gray-500 text-xs font-karla">
-            {lastMessage?.content || "No messages yet"}
+            {members} {members === 1 ? "member" : "members"}
           </p>
         </div>
       </div>
       <div className="flex flex-col gap-2 justify-end items-end">
         <p className="text-gray-500 text-xs font-karla">
-          {lastMessage &&
-            new Intl.DateTimeFormat("en-US", {
-              hour: "2-digit",
-              minute: "2-digit",
-            }).format(new Date(Number(lastMessage.timestamp)))}
+          {treasuryToken.toUpperCase()}
         </p>
-        {lastMessage?.read && (
-          <p className="text-xs font-karla bg-[#e8492a] text-white rounded-full p-1 w-6 h-6 flex items-center justify-center">
-            {lastMessage?.read ? "1" : "0"}
-          </p>
-        )}
       </div>
     </div>
   );

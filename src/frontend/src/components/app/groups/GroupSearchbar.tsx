@@ -17,7 +17,9 @@ function GroupSearchbar() {
   };
   return (
     <div className="flex items-center justify-between bg-[#faf6f9] rounded-3xl p-2 py-4 w-full h-20">
-      <h1 className="text-primary font-karla text-lg font-bold">Groups</h1>
+      <h1 className="text-primary font-karla text-lg font-bold hidden md:block">
+        Groups
+      </h1>
       <div className="bg-white rounded-full flex items-center justify-between border border-gray-200">
         <Input
           placeholder="Search Groups"

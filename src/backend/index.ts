@@ -2,6 +2,7 @@
 
 import { MessagesService } from "./chat";
 import { UserService } from "./user";
+import { GroupChatService } from "./rooms";
 import { IDL, query, update } from "azle";
 
 const SupportedStandard = IDL.Record({
@@ -51,4 +52,4 @@ export const icrc28_trusted_origins = update(
 );
 
 /**INDEX CANISTER CLASS */
-export default [UserService, MessagesService];
+export default [UserService, MessagesService, GroupChatService];

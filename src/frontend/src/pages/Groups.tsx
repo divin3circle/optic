@@ -1,27 +1,27 @@
 import { useChatIsMobile } from "../../hooks/useChatIsMobile";
-import ChatWindow from "../components/app/chats/ChatWindow";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import logo from "../../assets/images/icon.png";
 import useChatStore from "../../store/chats";
 import GroupSidebar from "@/components/app/groups/GroupSidebar";
+import GroupChatWindow from "../components/app/groups/GroupChatWindow";
 
 function Groups() {
   const isMobile = useChatIsMobile();
-  const { selectedChatId } = useChatStore();
+  const { selectedGroupChatId } = useChatStore();
 
   return (
     <div className="flex h-screen w-full">
-      {(!isMobile || !selectedChatId) && (
+      {(!isMobile || !selectedGroupChatId) && (
         <div className={cn("w-full lg:w-[40%]")}>
           <GroupSidebar />
         </div>
       )}
 
-      {(!isMobile || selectedChatId) && (
+      {(!isMobile || selectedGroupChatId) && (
         <div className={cn("w-full lg:w-[60%]")}>
-          {selectedChatId ? (
-            <ChatWindow />
+          {selectedGroupChatId ? (
+            <GroupChatWindow />
           ) : (
             <div className="flex items-center justify-center flex-col h-full">
               <a>

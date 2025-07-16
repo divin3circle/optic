@@ -6,19 +6,40 @@
  * *************************
  */
 
-import { IDL, msgCaller, Principal, query, update } from "azle";
+import { IDL, Principal, query, update } from "azle";
 import {
   chat_rooms,
+  group_messages,
   room_investment_records,
   treasury_records,
   users,
 } from "../state";
-import { generate_chat_room_id, generate_notification_id, log } from "../utils";
-import { ChatRoom, Investor, Notification, TreasuryRecord } from "../types";
+import {
+  generate_chat_room_id,
+  generate_message_id,
+  generate_notification_id,
+  log,
+} from "../utils";
+import {
+  ChatMessage,
+  ChatRoom,
+  Investor,
+  Notification,
+  TreasuryRecord,
+} from "../types";
 
 export class GroupChatService {
   @update(
-    [IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Float64],
+    [
+      IDL.Text,
+      IDL.Text,
+      IDL.Text,
+      IDL.Text,
+      IDL.Text,
+      IDL.Text,
+      IDL.Float64,
+      IDL.Text,
+    ],
     IDL.Bool
   )
   create_group_chat(
@@ -28,10 +49,10 @@ export class GroupChatService {
     investment_cycle: string,
     profile_image: string,
     description: string,
-    max_contribution: number
+    max_contribution: number,
+    created_by: string
   ): boolean {
-    const caller = msgCaller();
-    const user = users.get(caller.toString());
+    const user = users.get(created_by);
     if (!user) {
       log("User is not a member of Optic platform", "error");
       return false;
@@ -62,8 +83,8 @@ export class GroupChatService {
       name,
       description,
       profileImage: profile_image,
-      admin: caller,
-      members: [caller],
+      admin: Principal.fromText(created_by),
+      members: [Principal.fromText(created_by)],
       treasury: { token: treasury_token, amount: 0 },
       investors: [],
       contributionCycle: contribution_cycle,
@@ -83,7 +104,7 @@ export class GroupChatService {
       `You have created a new group chat: ${name}`,
       "system",
       "Group Chat Created",
-      caller
+      Principal.fromText(created_by)
     );
     log("Group chat created successfully", "success");
     return true;
@@ -97,6 +118,60 @@ export class GroupChatService {
   get_group_chat(group_chat_id: string): [ChatRoom] | [] {
     const chat_room = chat_rooms.get(group_chat_id);
     return chat_room ? [chat_room] : [];
+  }
+
+  @query([IDL.Text, IDL.Int], IDL.Vec(ChatMessage))
+  get_group_chat_messages(group_chat_id: string, limit: number): ChatMessage[] {
+    const chat_room = chat_rooms.get(group_chat_id);
+    if (!chat_room) {
+      log("The chat room was not found", {
+        group_chat_id,
+      });
+      return [];
+    }
+    const offSetMessageIds = chat_room.messages.slice(
+      chat_room.messages.length - limit
+    );
+    const messages = offSetMessageIds.map((message_id) => {
+      return group_messages.get(message_id) || null;
+    });
+    return messages.filter((message) => message !== null);
+  }
+
+  @update([IDL.Text, IDL.Text, IDL.Text], IDL.Bool)
+  send_group_message(
+    group_chat_id: string,
+    message: string,
+    sender: string
+  ): boolean {
+    const chat_room = chat_rooms.get(group_chat_id);
+    if (!chat_room) {
+      log("Chat room not found", {
+        group_chat_id,
+      });
+      return false;
+    }
+    const message_id = generate_message_id();
+    const new_message: ChatMessage = {
+      messageId: message_id,
+      roomId: group_chat_id,
+      sender: Principal.fromText(sender),
+      content: message,
+      timestamp: BigInt(Date.now()),
+      reactions: [],
+      replies: [],
+    };
+    group_messages.set(message_id, new_message);
+    chat_room.messages.push(message_id);
+    chat_room.members.forEach((member) => {
+      this.send_notification(
+        `New message in ${chat_room.name}`,
+        "message",
+        "Group Chat Message",
+        member
+      );
+    });
+    return true;
   }
 
   @update([IDL.Text, IDL.Principal], IDL.Bool)
@@ -234,6 +309,7 @@ export class GroupChatService {
       log("Chat room not found", { group_chat_id });
       return false;
     }
+    return true;
   }
 
   send_notification(
@@ -273,5 +349,16 @@ export class GroupChatService {
     } else {
       return BigInt(0);
     }
+  }
+
+  get_group_messages(message_id: string): ChatMessage | null {
+    const message = group_messages.get(message_id);
+    if (!message) {
+      log("The message was not found", {
+        message_id,
+      });
+      return null;
+    }
+    return message;
   }
 }

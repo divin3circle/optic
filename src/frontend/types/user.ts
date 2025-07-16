@@ -41,9 +41,53 @@ export type PersonalMessage = {
   read: boolean;
 };
 
+export type Reply = {
+  messageId: string;
+  sender: Principal;
+  content: string;
+  timestamp: bigint;
+};
+
+export type ChatMessage = {
+  messageId: string;
+  roomId: string;
+  sender: Principal;
+  content: string;
+  timestamp: bigint;
+  reactions: { type: string; count: number }[];
+  replies: Reply[];
+};
+
+export type Investor = {
+  principalId: Principal;
+  amountInvested: number;
+  feeShare: number;
+};
+
+export type ChatRoom = {
+  id: string;
+  name: string;
+  description: string;
+  profileImage: string;
+  admin: Principal;
+  members: Principal[];
+  treasury: { token: string; amount: number };
+  investors: Investor[];
+  contributionCycle: "daily" | "weekly" | "monthly" | string;
+  investmentCycle: "weekly" | "monthly" | "yearly" | string;
+  investedAmount: number;
+  maxContribution: number;
+  createdAt: bigint;
+  messages: string[];
+  nextContributionDate: bigint;
+  nextInvestmentDate: bigint;
+  minimumAccountBalance: number;
+};
+
 import message from "../assets/icons/newmessage.png";
 import system from "../assets/images/icon-dark.png";
 import agent from "../assets/icons/aiagent.png";
+import { Principal } from "@dfinity/principal";
 
 export const NotificationImages = {
   message,

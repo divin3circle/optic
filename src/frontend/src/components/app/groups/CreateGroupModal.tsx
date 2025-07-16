@@ -26,6 +26,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { DASHBOARD_TOKENS } from "../../../../types/tokens";
+import { useState } from "react";
+import { backend } from "../../../../utils";
+import { LoadingSmall } from "@/components/ui/Loading";
+import useUser from "../../../../store/user";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -37,13 +42,10 @@ const formSchema = z.object({
   profileImage: z.url().min(2, {
     message: "Profile image must be at least 2 characters.",
   }),
-  contributionCycle: z.string().min(2, {
-    message: "Contribution cycle must be at least 2 characters.",
-  }),
   investmentCycle: z.string().min(2, {
     message: "Investment cycle must be at least 2 characters.",
   }),
-  maxContribution: z.number().min(1, {
+  maxContribution: z.string().min(1, {
     message: "Max contribution must be at least 1.",
   }),
   treasuryToken: z.string().min(2, {
@@ -56,30 +58,67 @@ function CreateGroupModal({
 }: {
   setIsCreateRoomModalOpen: (isOpen: boolean) => void;
 }) {
+  const [isLoading, setIsLoading] = useState(false);
+  const { user } = useUser();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
       description: "",
       profileImage: "",
-      contributionCycle: "",
       investmentCycle: "",
-      maxContribution: 0,
+      maxContribution: "1",
       treasuryToken: "",
     },
   });
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    const groupCreated = {
-      name: values.name,
-      description: values.description,
-      profileImage: values.profileImage,
-      contributionCycle: "weekly",
-      investmentCycle: values.investmentCycle,
-      maxContribution: values.maxContribution,
-      treasuryToken: values.treasuryToken,
-    };
-    console.log(groupCreated);
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!form.formState.isValid) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+    console.log(values);
+    if (!user) {
+      toast.error("Please login to create a group");
+      setIsCreateRoomModalOpen(false);
+      return;
+    }
+    try {
+      setIsLoading(true);
+      const groupCreated = {
+        name: values.name,
+        description: values.description,
+        profileImage: values.profileImage,
+        contributionCycle: "weekly",
+        investmentCycle: values.investmentCycle,
+        maxContribution: values.maxContribution,
+        treasuryToken: values.treasuryToken,
+        created_by: user.id,
+      };
+      console.log(groupCreated);
+      const isCreated = await backend.create_group_chat(
+        groupCreated.name,
+        groupCreated.treasuryToken,
+        groupCreated.contributionCycle,
+        groupCreated.investmentCycle,
+        groupCreated.profileImage,
+        groupCreated.description,
+        Number(groupCreated.maxContribution),
+        groupCreated.created_by
+      );
+      if (isCreated) {
+        toast.success("Group created successfully");
+        setIsCreateRoomModalOpen(false);
+      } else {
+        toast.error("Failed to create group");
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
   }
+
   return (
     <div className="flex items-center justify-center">
       <motion.div
@@ -199,15 +238,15 @@ function CreateGroupModal({
                                   {DASHBOARD_TOKENS?.map((token, index) => (
                                     <SelectItem
                                       key={index}
-                                      value={token.name}
+                                      value={token.symbol}
                                       className="flex items-center gap-2"
                                     >
                                       <img
                                         src={token.icon}
                                         alt={token.name}
-                                        className="w-4 h-4"
+                                        className="w-6 h-6 rounded-full"
                                       />
-                                      {token.name}
+                                      {token.symbol}
                                     </SelectItem>
                                   ))}
                                 </SelectGroup>
@@ -264,40 +303,39 @@ function CreateGroupModal({
                     </FormItem>
                   )}
                 />
-                {form.watch("treasuryToken") !== "" && (
-                  <FormField
-                    control={form.control}
-                    name="maxContribution"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-karla-semi-bold text-primary mt-4">
-                          Max Contribution
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder={`Max contribution in ${form.watch(
-                              "treasuryToken"
-                            )} per cycle`}
-                            {...field}
-                            className="rounded-3xl h-10 text-primary font-karla"
-                          />
-                        </FormControl>
-                        <FormDescription className="text-xs font-karla text-gray-500 flex items-center gap-2">
-                          <InfoIcon className="w-4 h-4 text-gray-500" />
-                          This is the maximum amount of{" "}
-                          {form.watch("treasuryToken")} that can be contributed.
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )}
+                <FormField
+                  control={form.control}
+                  name="maxContribution"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="font-karla-semi-bold text-primary mt-4">
+                        Max Contribution
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder={`Max contribution in ${form.watch(
+                            "treasuryToken"
+                          )} per cycle`}
+                          {...field}
+                          className="rounded-3xl h-10 text-primary font-karla"
+                        />
+                      </FormControl>
+                      <FormDescription className="text-xs font-karla text-gray-500 flex items-center gap-2">
+                        <InfoIcon className="w-4 h-4 text-gray-500" />
+                        This is the maximum amount of{" "}
+                        {form.watch("treasuryToken")} that can be contributed.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
               <Button
                 type="submit"
                 className="w-full rounded-3xl h-10 bg-[#e8492a] text-white font-karla-semi-bold"
+                disabled={isLoading || !form.formState.isValid}
               >
-                Create Group
+                {isLoading ? <LoadingSmall /> : "Create Group"}
               </Button>
             </form>
           </Form>

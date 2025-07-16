@@ -3,6 +3,8 @@ import { backend } from "../utils/index.js";
 import { useAuth } from "@nfid/identitykit/react";
 import { User } from "../types/user.js";
 import useUserStore from "../store/user.js";
+import { useQuery } from "@tanstack/react-query";
+import { Principal } from "@dfinity/principal";
 
 export const useUser = () => {
   const { user } = useAuth();
@@ -23,3 +25,11 @@ export const useUser = () => {
 
   return { loading };
 };
+
+export function useGetUser(id: string) {
+  const { data, isLoading } = useQuery({
+    queryKey: ["user"],
+    queryFn: () => backend.get_user(Principal.fromText(id)),
+  });
+  return { data, isLoading };
+}

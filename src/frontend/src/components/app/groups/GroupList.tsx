@@ -1,17 +1,15 @@
 import GroupItem from "./GroupItem";
-import useUserStore from "../../../../store/user";
-import { usePersonalChats } from "../../../../hooks/useChats";
-import { usePersonalChatRooms } from "../../../../hooks/usePersonalChatRooms";
 import Loading from "@/components/ui/Loading";
+import { useGroupChatRooms } from "../../../../hooks/useGroupChatRooms";
 
 function GroupList() {
-  const { personalChatRooms, isLoading } = usePersonalChatRooms();
+  const { groupChatRooms, isLoading } = useGroupChatRooms();
 
   if (isLoading) {
     return <Loading />;
   }
 
-  if (!personalChatRooms) {
+  if (!groupChatRooms) {
     return (
       <div className="flex flex-col gap-2 p-2 h-full overflow-y-auto">
         <h1 className="text-gray-500 text-lg font-karla">No personal chats</h1>
@@ -23,21 +21,21 @@ function GroupList() {
     <div className="h-full bg-[#faf6f9] rounded-3xl p-2">
       <div className="flex flex-col gap-2 mb-4">
         <div className="flex flex-col gap-2">
-          {personalChatRooms.map(
-            (personalChatRoom) =>
-              personalChatRoom.sender && (
-                <GroupItem
-                  key={personalChatRoom.sender.id}
-                  sender={personalChatRoom.sender}
-                  lastMessage={personalChatRoom.lastMessage}
-                  pcr_id={personalChatRoom.pcr_id}
-                />
-              )
-          )}
-          {personalChatRooms.length === 0 && (
+          {groupChatRooms.map((groupChatRoom) => (
+            <GroupItem
+              key={groupChatRoom.chatRoom[0].id}
+              name={groupChatRoom.chatRoom[0].name}
+              members={groupChatRoom.chatRoom[0].members.length}
+              profileImage={groupChatRoom.chatRoom[0].profileImage}
+              treasuryToken={groupChatRoom.chatRoom[0].treasury.token}
+              id={groupChatRoom.chatRoom[0].id}
+              room={groupChatRoom.chatRoom[0]}
+            />
+          ))}
+          {groupChatRooms.length === 0 && (
             <div className="flex flex-col gap-2">
               <h1 className="text-gray-500 text-lg font-karla">
-                No personal chats
+                No group chats
               </h1>
             </div>
           )}

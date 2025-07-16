@@ -47,7 +47,7 @@ export type Reply = {
   timestamp: bigint;
 };
 
-// ChatMessage
+// ChatMessage - Group Chat
 export const ChatMessage = IDL.Record({
   messageId: IDL.Text,
   roomId: IDL.Text,
@@ -194,7 +194,7 @@ export const ChatRoom = IDL.Record({
   investedAmount: IDL.Float64,
   maxContribution: IDL.Float64,
   createdAt: IDL.Int,
-  messages: IDL.Vec(ChatMessage),
+  messages: IDL.Vec(IDL.Text),
   nextContributionDate: IDL.Int,
   nextInvestmentDate: IDL.Int,
   minimumAccountBalance: IDL.Float64,
@@ -213,7 +213,7 @@ export type ChatRoom = {
   investedAmount: number;
   maxContribution: number;
   createdAt: bigint;
-  messages: ChatMessage[];
+  messages: string[];
   nextContributionDate: bigint;
   nextInvestmentDate: bigint;
   minimumAccountBalance: number;
