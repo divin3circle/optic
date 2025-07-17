@@ -10,6 +10,7 @@ import { IDL, Principal, query, update } from "azle";
 import {
   chat_rooms,
   group_messages,
+  room_contribution_records,
   room_investment_records,
   treasury_records,
   users,
@@ -25,7 +26,9 @@ import {
   ChatRoom,
   Investor,
   Notification,
+  InvestmentRecord,
   TreasuryRecord,
+  ContributionRecord,
 } from "../types";
 
 export class GroupChatService {
@@ -99,7 +102,11 @@ export class GroupChatService {
     };
     chat_rooms.set(new_chat_room.id, new_chat_room);
     user.chatRooms.push(new_chat_room.id);
-    room_investment_records.set(new_chat_room.id, 0);
+    room_investment_records.set(new_chat_room.id, {
+      token: treasury_token,
+      amount: 0,
+      updatedAt: BigInt(Date.now()),
+    });
     this.send_notification(
       `You have created a new group chat: ${name}`,
       "system",
@@ -225,6 +232,40 @@ export class GroupChatService {
     return true;
   }
 
+  @query([IDL.Text], IDL.Opt(InvestmentRecord))
+  get_group_chat_total_contributions(
+    group_chat_id: string
+  ): [InvestmentRecord] | [] {
+    const room = chat_rooms.get(group_chat_id);
+    if (!room) {
+      log("Chat room not found", { group_chat_id });
+      return [];
+    }
+    const investment_record = room_investment_records.get(group_chat_id);
+    if (!investment_record) {
+      log("Investment record not found", { group_chat_id });
+      return [];
+    }
+    return [investment_record];
+  }
+
+  @query([IDL.Text], IDL.Vec(ContributionRecord))
+  get_group_chat_historical_contribution_records(
+    group_chat_id: string
+  ): ContributionRecord[] | [] {
+    const room = chat_rooms.get(group_chat_id);
+    if (!room) {
+      log("Chat room not found", { group_chat_id });
+      return [];
+    }
+    const contribution_records = room_contribution_records.get(group_chat_id);
+    if (!contribution_records) {
+      log("Contribution records not found", { group_chat_id });
+      return [];
+    }
+    return contribution_records;
+  }
+
   @update([IDL.Text], IDL.Bool)
   update_next_dates(group_chat_id: string): boolean {
     const chat_room = chat_rooms.get(group_chat_id);
@@ -253,6 +294,8 @@ export class GroupChatService {
     token: string,
     contributor: Principal
   ): boolean {
+    // we need to update the room_share_record, member_room_share_record,  room_contribution_records
+    // room_investment_records,
     const room = chat_rooms.get(group_chat_id);
     if (!room) {
       log("Chat room not found", { group_chat_id });
@@ -303,24 +346,6 @@ export class GroupChatService {
     }
     treasury_records.set(group_chat_id, treasury_record);
 
-    return true;
-  }
-
-  @update([IDL.Text, IDL.Float64], IDL.Bool)
-  invest_room_funds(group_chat_id: string, amount: number): boolean {
-    // call ledger canister to invest funds in the front end
-    const room = chat_rooms.get(group_chat_id);
-    if (!room) {
-      log("Chat room not found", { group_chat_id });
-      return false;
-    }
-    room.investedAmount += amount;
-    const previous_amount = room_investment_records.get(group_chat_id);
-    if (!previous_amount) {
-      room_investment_records.set(group_chat_id, amount);
-    } else {
-      room_investment_records.set(group_chat_id, previous_amount + amount);
-    }
     return true;
   }
 
