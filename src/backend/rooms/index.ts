@@ -202,6 +202,29 @@ export class GroupChatService {
     return true;
   }
 
+  @update([IDL.Text, IDL.Text], IDL.Bool)
+  join_group_chat(group_chat_id: string, user_id: string): boolean {
+    const room = chat_rooms.get(group_chat_id);
+    if (!room) {
+      log("Chat room not found", group_chat_id);
+      return false;
+    }
+    const user = users.get(user_id);
+    if (!user) {
+      log("User not found", user_id);
+      return false;
+    }
+    room.members.push(Principal.fromText(user_id));
+    user.chatRooms.push(group_chat_id);
+    this.send_notification(
+      `You have joined ${room.name}`,
+      "system",
+      "Group Chat Joined",
+      Principal.fromText(user_id)
+    );
+    return true;
+  }
+
   @update([IDL.Text], IDL.Bool)
   update_next_dates(group_chat_id: string): boolean {
     const chat_room = chat_rooms.get(group_chat_id);
