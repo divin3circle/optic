@@ -10,6 +10,7 @@ import { IDL, Principal, query, update } from "azle";
 import {
   chat_rooms,
   group_messages,
+  member_room_share_record,
   room_contribution_records,
   room_investment_records,
   treasury_records,
@@ -288,14 +289,14 @@ export class GroupChatService {
   }
 
   @update([IDL.Text, IDL.Float64, IDL.Text, IDL.Principal], IDL.Bool)
-  contribute_to_chat_room(
+  async contribute_to_chat_room(
     group_chat_id: string,
     amount: number,
     token: string,
     contributor: Principal
-  ): boolean {
-    // we need to update the room_share_record, member_room_share_record,  room_contribution_records
-    // room_investment_records,
+  ): Promise<boolean> {
+    // we need to update the room_share_record, member_room_share_recordx,  room_contribution_recordsx
+    // room_investment_recordsx,
     const room = chat_rooms.get(group_chat_id);
     if (!room) {
       log("Chat room not found", { group_chat_id });
@@ -326,7 +327,32 @@ export class GroupChatService {
       amountInvested: amount,
       feeShare: feeShare,
     };
+    const conversionRate = await this.get_conversion_rate(token);
+    const contribution_record: ContributionRecord = {
+      contributor: contributor,
+      roomId: group_chat_id,
+      amount: amount,
+      amountInUSD: amount * conversionRate,
+      token: token,
+      timestamp: BigInt(Date.now()),
+    };
+    // update the room's investors
     room.investors.push(investor);
+    // room investment record
+    const room_investment_record = room_investment_records.get(group_chat_id);
+    if (!room_investment_record) {
+      log("Room investment record not found", { group_chat_id });
+      return false;
+    }
+    room_investment_record.amount += amount;
+    room_investment_record.updatedAt = BigInt(Date.now());
+    // update a member's share of the room -> member_room_share_record
+    member_room_share_record.set(contributor.toString(), feeShare);
+    // update the room's contribution records -> room_contribution_records
+    room_contribution_records.set(group_chat_id, [
+      ...(room_contribution_records.get(group_chat_id) || []),
+      contribution_record,
+    ]);
 
     const treasury_record = treasury_records.get(group_chat_id) || [];
     const tokenIndex = treasury_record.findIndex(
@@ -411,5 +437,26 @@ export class GroupChatService {
       return null;
     }
     return message;
+  }
+
+  async get_conversion_rate(token: string): Promise<number> {
+    const formattedToken = this.format_token(token);
+    const price_url = `https://api.binance.com/api/v3/ticker/price?symbol=${formattedToken}USDT`;
+    try {
+      const response = await fetch(price_url);
+      const data = await response.json();
+      const price = parseFloat(data.price);
+      return price;
+    } catch (error) {
+      log("Error fetching conversion rate", { error });
+      return 1;
+    }
+  }
+
+  format_token(token: string): string {
+    if (token.startsWith("ck")) {
+      return token.slice(2);
+    }
+    return token;
   }
 }
