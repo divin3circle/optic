@@ -23,7 +23,7 @@ function GroupMessageBubble({ message }: { message: ChatMessage }) {
   return (
     <div
       className={cn(
-        "flex flex-col w-full mb-4 p-2 ",
+        "flex flex-col w-full mb-4 p-2",
         isUser ? "items-end" : "items-start"
       )}
     >
@@ -42,7 +42,7 @@ function GroupMessageBubble({ message }: { message: ChatMessage }) {
       </div>
       <div
         className={cn(
-          "flex flex-col gap-2 max-w-[75%] py-3 px-2 text-wrap text-primary items-start bg-[#faf6f9] rounded-tl-xl rounded-tr-3xl rounded-br-3xl border border-gray-200",
+          "flex flex-col gap-2 min-w-[50px] max-w-[75%] py-3 px-2 text-wrap text-primary items-start bg-[#faf6f9] rounded-tl-xl rounded-tr-3xl rounded-br-3xl border border-gray-200",
           !isUser ? "border-l-[#e8492a] border-2" : "border-gray-200"
         )}
       >

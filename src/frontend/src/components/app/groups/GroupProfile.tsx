@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import React from "react";
+import { GroupEarningsGraph } from "./GroupEarningsGraph";
 import useChatStore from "../../../../store/chats";
 import { FaEllipsisH, FaHandHoldingUsd, FaPlus } from "react-icons/fa";
 import { ArrowLeft } from "lucide-react";
@@ -79,7 +79,14 @@ function GroupProfile() {
           <GroupMembersView members={groupHeaderProps.members} />
         </div>
         <GroupTreasury />
-        <GroupContributionGraph />
+        <a
+          href="#"
+          className="text-gray-400 text-sm font-karla-semi-bold text-center mt-4 cursor-pointer underline hover:text-primary transition-all duration-300"
+        >
+          More Details
+        </a>
+        {/* <GroupEarningsGraph />
+        <GroupContributionGraph /> */}
       </div>
     </motion.div>
   );
