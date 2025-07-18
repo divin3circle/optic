@@ -14,49 +14,43 @@ function GroupMessageBubble({ message }: { message: ChatMessage }) {
   if (!user) {
     return null;
   }
-  const isUser = useMemo(() => {
-    return message.sender.toString() !== user.id;
-  }, [message]);
+  const isUser = message.sender.toString() === user.id;
+
   if (!sender || !sender[0]) {
     return null;
   }
   return (
-    <div
-      className={cn(
-        "flex flex-col w-full mb-4 p-2",
-        isUser ? "items-end" : "items-start"
-      )}
-    >
+    <div className={cn("flex flex-col w-full mb-4 p-2")}>
       <div className="flex items-center gap-2 mb-1">
         <img
           src={sender[0].profileImage}
           alt={sender[0].username}
           className={cn(
             "w-8 h-8 rounded-full border border-gray-200",
-            !isUser ? "border-[#e8492a]" : "border-gray-200"
+            isUser ? "border-[#e8492a]" : "border-gray-200"
           )}
         />
         <h1 className="text-gray-500 font-karla text-sm">
-          {isUser ? sender?.[0]?.username : "You"}
+          {isUser ? "You" : sender?.[0]?.username}
         </h1>
       </div>
       <div
         className={cn(
-          "flex flex-col gap-2 min-w-[50px] max-w-[75%] py-3 px-2 text-wrap text-primary items-start bg-[#faf6f9] rounded-tl-xl rounded-tr-3xl rounded-br-3xl border border-gray-200",
-          !isUser ? "border-l-[#e8492a] border-2" : "border-gray-200"
+          "flex flex-col gap-2 w-fit min-w-[100px] max-w-[75%] py-3 px-2 text-wrap text-primary items-start bg-[#faf6f9] rounded-tl-xl rounded-tr-3xl rounded-br-3xl border border-gray-200",
+          isUser ? "border-l-[#e8492a] border-2 " : "border-gray-200"
         )}
       >
-        <h1 className={cn("font-karla text-lg text-gray-500")}>
+        <h1
+          className={cn(
+            "font-karla text-lg text-gray-500",
+            isUser ? "text-primary" : "text-gray-500"
+          )}
+        >
           {message.content}
         </h1>
       </div>
-      <div
-        className={cn(
-          "flex items-center gap-2",
-          isUser ? "justify-end" : "justify-start flex-row-reverse"
-        )}
-      >
-        <p className="text-gray-500 font-karla text-xs">
+      <div className={cn("flex items-center gap-2")}>
+        <p className="text-gray-500 font-karla text-xs text-left">
           {sendingMessage === message.content
             ? "Sending..."
             : new Intl.DateTimeFormat("en-US", {

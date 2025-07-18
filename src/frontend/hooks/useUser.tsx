@@ -28,7 +28,7 @@ export const useUser = () => {
 
 export function useGetUser(id: string) {
   const { data, isLoading } = useQuery({
-    queryKey: ["user"],
+    queryKey: ["user", id],
     queryFn: () => backend.get_user(Principal.fromText(id)),
   });
   return { data, isLoading };
