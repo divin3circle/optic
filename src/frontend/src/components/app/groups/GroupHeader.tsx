@@ -3,10 +3,15 @@ import dummy from "../../../../assets/images/message.webp";
 import { FaAngleLeft, FaPlus } from "react-icons/fa";
 import useChatStore from "../../../../store/chats.js";
 import { motion } from "framer-motion";
+import { useState } from "react";
+import InviteMemberModal from "./InviteMemberModal";
 
 function GroupHeader() {
   const { setSelectedGroupChatId, groupHeaderProps, setViewingGroupProfile } =
     useChatStore();
+  const [inviteMemberModalOpen, setInviteMemberModalOpen] = useState(false);
+  console.log(inviteMemberModalOpen);
+
   return (
     <motion.div
       className="sticky top-0 z-10 md:flex items-center justify-between rounded-3xl bg-[#faf6f9] p-2 h-20 border border-gray-200"
@@ -47,6 +52,7 @@ function GroupHeader() {
           <Button
             variant="ghost"
             className="bg-primary hover:bg-primary/90 rounded-full"
+            onClick={() => setInviteMemberModalOpen(true)}
           >
             <FaPlus className="w-4 h-4 text-[#faf6f9]" />
             <span className="text-[#faf6f9] text-sm font-karla-semi-bold">
@@ -55,6 +61,11 @@ function GroupHeader() {
           </Button>
         </div>
       </div>
+      {inviteMemberModalOpen && (
+        <InviteMemberModal
+          setIsCreateRoomModalOpen={setInviteMemberModalOpen}
+        />
+      )}
     </motion.div>
   );
 }

@@ -5,6 +5,7 @@ export type Notification = {
   message: string;
   timestamp: bigint;
   notificationId: string;
+  data: [string] | [];
 };
 
 export type User = {

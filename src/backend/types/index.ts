@@ -123,6 +123,7 @@ export const Notification = IDL.Record({
   message: IDL.Text,
   read: IDL.Bool,
   timestamp: IDL.Int,
+  data: IDL.Opt(IDL.Text),
 });
 export type Notification = {
   notificationId: string;
@@ -131,6 +132,7 @@ export type Notification = {
   message: string;
   read: boolean;
   timestamp: bigint;
+  data: [string] | [];
 };
 
 // Personal Chat Room

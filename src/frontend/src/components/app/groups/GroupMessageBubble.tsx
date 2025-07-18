@@ -46,12 +46,7 @@ function GroupMessageBubble({ message }: { message: ChatMessage }) {
           !isUser ? "border-l-[#e8492a] border-2" : "border-gray-200"
         )}
       >
-        <h1
-          className={cn(
-            "text-white font-karla text-lg",
-            isUser ? "text-white" : "text-primary"
-          )}
-        >
+        <h1 className={cn("font-karla text-lg text-gray-500")}>
           {message.content}
         </h1>
       </div>

@@ -64,13 +64,15 @@ export class MessagesService {
       `${sender.username} has created a new chat room with you.`,
       "system",
       "New Chat Room",
-      Principal.fromText(receiver_id)
+      Principal.fromText(receiver_id),
+      [pcr_id]
     );
     this.send_notification(
       `Your chat room with ${receiver.username} has been created.`,
       "system",
       "New Chat Room",
-      Principal.fromText(sender_id)
+      Principal.fromText(sender_id),
+      [pcr_id]
     );
     return true;
   }
@@ -124,7 +126,8 @@ export class MessagesService {
       truncate_string(content, 20),
       "message",
       "New Message",
-      receiver_id
+      receiver_id,
+      [pcr_id]
     );
     return true;
   }
@@ -145,7 +148,8 @@ export class MessagesService {
     message: string,
     type: "message" | "proposal" | "system",
     title: string,
-    receiver_id: Principal
+    receiver_id: Principal,
+    data: [string] | []
   ): boolean {
     const notification: Notification = {
       notificationId: generate_notification_id(),
@@ -154,6 +158,7 @@ export class MessagesService {
       message: message,
       read: false,
       timestamp: BigInt(Date.now()),
+      data,
     };
     const user = users.get(receiver_id.toString());
     if (!user) {

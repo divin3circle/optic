@@ -112,7 +112,8 @@ export class GroupChatService {
       `You have created a new group chat: ${name}`,
       "system",
       "Group Chat Created",
-      Principal.fromText(created_by)
+      Principal.fromText(created_by),
+      [new_chat_room.id]
     );
     log("Group chat created successfully", "success");
     return true;
@@ -179,7 +180,8 @@ export class GroupChatService {
         `New message in ${chat_room.name}`,
         "message",
         "Group Chat Message",
-        member
+        member,
+        [group_chat_id]
       );
     });
     return true;
@@ -205,7 +207,8 @@ export class GroupChatService {
       `You have been invited to join ${chat_room.name}`,
       "system",
       "Group Chat Invitation",
-      invitee_id
+      invitee_id,
+      [group_chat_id]
     );
     return true;
   }
@@ -228,7 +231,8 @@ export class GroupChatService {
       `You have joined ${room.name}`,
       "system",
       "Group Chat Joined",
-      Principal.fromText(user_id)
+      Principal.fromText(user_id),
+      [group_chat_id]
     );
     return true;
   }
@@ -393,7 +397,8 @@ export class GroupChatService {
     message: string,
     type: "message" | "proposal" | "system",
     title: string,
-    receiver_id: Principal
+    receiver_id: Principal,
+    data: [string] | []
   ): boolean {
     const notification: Notification = {
       notificationId: generate_notification_id(),
@@ -402,6 +407,7 @@ export class GroupChatService {
       message: message,
       read: false,
       timestamp: BigInt(Date.now()),
+      data,
     };
     const user = users.get(receiver_id.toString());
     if (!user) {
