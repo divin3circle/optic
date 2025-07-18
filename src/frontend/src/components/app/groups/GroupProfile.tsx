@@ -6,10 +6,10 @@ import { ArrowLeft } from "lucide-react";
 import GroupMembersView from "./GroupMembersView";
 import { Button } from "@/components/ui/button";
 import GroupTreasury from "./GroupTreasury";
-import { GroupContributionGraph } from "./GroupContributionGraph";
 
 function GroupProfile() {
   const { groupHeaderProps, setViewingGroupProfile } = useChatStore();
+
   if (!groupHeaderProps) {
     return null;
   }

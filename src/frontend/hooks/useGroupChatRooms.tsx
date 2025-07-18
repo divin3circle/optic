@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import { backend } from "../utils/index.js";
 import useUserStore from "../store/user.js";
 import { ChatMessage, ChatRoom, PersonalMessage, User } from "../types/user.js";
-import useChatStore from "../store/chats.js";
 
 export function useGroupChatRooms() {
   const user = useUserStore((state) => state.user);
