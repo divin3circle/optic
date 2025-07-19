@@ -1,16 +1,20 @@
 import React from "react";
-import MessageBubble from "./MessageBubble";
-import MessageInputBar from "./MessageInputBar";
+import MessageBubble from "./GroupMessageBubble";
+import MessageInputBar from "./GroupMessageInputBar";
 import { motion } from "framer-motion";
 import { usePersonalChats } from "../../../../hooks/useChats";
 import useChatStore from "../../../../store/chats";
 import Loading from "@/components/ui/Loading";
 import { Button } from "@/components/ui/button";
 import { List, AutoSizer } from "react-virtualized";
+import { useGroupChatMessages } from "../../../../hooks/useGroupChatRooms";
 
-function MessageList() {
-  const { selectedChatId } = useChatStore();
-  const { messages, isLoading } = usePersonalChats(selectedChatId);
+function GroupMessageList() {
+  const { selectedGroupChatId } = useChatStore();
+  const { messages, isLoading } = useGroupChatMessages(
+    selectedGroupChatId,
+    BigInt(100)
+  );
   const listRef = React.useRef<List>(null);
 
   // Performance optimization: Only render visible messages
@@ -75,7 +79,7 @@ function MessageList() {
                   rowHeight={({ index }: { index: number }) => {
                     // Estimate height based on message content length
                     const message = messages[index];
-                    const baseHeight = 85; // Base height for message bubble
+                    const baseHeight = 125; // Base height for message bubble
                     const contentLength = message.content.length;
                     const lines = Math.ceil(contentLength / 50); // Rough estimate: 50 chars per line
                     return Math.max(baseHeight, lines * 40 + 60); // 20px per line + padding
@@ -105,4 +109,4 @@ function MessageList() {
   );
 }
 
-export default MessageList;
+export default GroupMessageList;

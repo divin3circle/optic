@@ -64,15 +64,37 @@ export class MessagesService {
       `${sender.username} has created a new chat room with you.`,
       "system",
       "New Chat Room",
-      Principal.fromText(receiver_id)
+      Principal.fromText(receiver_id),
+      [pcr_id]
     );
     this.send_notification(
       `Your chat room with ${receiver.username} has been created.`,
       "system",
       "New Chat Room",
-      Principal.fromText(sender_id)
+      Principal.fromText(sender_id),
+      [pcr_id]
     );
     return true;
+  }
+
+  @query([IDL.Text], IDL.Opt(PersonalChatRoom))
+  get_personal_chat_room(pcr_id: string): [PersonalChatRoom] | [] {
+    const pcr = personal_chat_rooms.get(pcr_id);
+    if (!pcr) {
+      return [];
+    }
+    return [pcr];
+  }
+
+  @query([IDL.Text], IDL.Vec(User))
+  get_personal_chat_room_participants(pcr_id: string): User[] | [] {
+    const pcr = personal_chat_rooms.get(pcr_id);
+    if (!pcr) {
+      return [];
+    }
+    return pcr.participants
+      .map((participant) => users.get(participant.toString()) || null)
+      .filter((user) => user !== null);
   }
 
   @update([IDL.Text, IDL.Text, IDL.Principal], IDL.Bool)
@@ -83,6 +105,7 @@ export class MessagesService {
   ): boolean {
     const message_id = generate_message_id();
     const message: PersonalMessage = {
+      receiver: receiver_id.toString(),
       messageId: message_id,
       content: content,
       timestamp: BigInt(Date.now()),
@@ -103,7 +126,8 @@ export class MessagesService {
       truncate_string(content, 20),
       "message",
       "New Message",
-      receiver_id
+      receiver_id,
+      [pcr_id]
     );
     return true;
   }
@@ -124,7 +148,8 @@ export class MessagesService {
     message: string,
     type: "message" | "proposal" | "system",
     title: string,
-    receiver_id: Principal
+    receiver_id: Principal,
+    data: [string] | []
   ): boolean {
     const notification: Notification = {
       notificationId: generate_notification_id(),
@@ -133,6 +158,7 @@ export class MessagesService {
       message: message,
       read: false,
       timestamp: BigInt(Date.now()),
+      data,
     };
     const user = users.get(receiver_id.toString());
     if (!user) {

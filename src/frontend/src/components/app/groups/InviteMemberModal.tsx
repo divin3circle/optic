@@ -11,12 +11,15 @@ import Lottie from "lottie-react";
 import { cn } from "@/lib/utils";
 import useUserStore from "../../../../store/user";
 import { motion } from "framer-motion";
+import useChatStore from "../../../../store/chats";
+import { Principal } from "@dfinity/principal";
 
-function CreateRoomModal({
+function InviteMemberModal({
   setIsCreateRoomModalOpen,
 }: {
   setIsCreateRoomModalOpen: (isOpen: boolean) => void;
 }) {
+  const { selectedGroupChatId } = useChatStore();
   const user = useUserStore((state) => state.user);
   const [search, setSearch] = useState("");
   const [step, setStep] = useState(1);
@@ -37,12 +40,12 @@ function CreateRoomModal({
   };
 
   const handleCreateRoom = async () => {
-    if (!receiver || !user) return;
+    if (!receiver || !user || !selectedGroupChatId) return;
     setRoomCreationLoading(true);
     try {
-      const results = await backend.create_personal_chat_room(
-        receiver.id,
-        user.id
+      const results = await backend.send_invite(
+        selectedGroupChatId,
+        Principal.fromText(receiver.id)
       );
       if (results) {
         setStep(3);
@@ -135,7 +138,7 @@ function CreateRoomModal({
           <div className="bg-[#faf6f9] border border-gray-200 rounded-3xl p-4 w-full max-w-md mx-1 mb-2">
             <div className="flex items-center justify-between mb-4">
               <h1 className="text-lg font-karla-bold text-primary ">
-                Create Room
+                Invite {receiver?.username}
               </h1>
               <FaX
                 className="text-sm text-gray-500 cursor-pointer"
@@ -152,7 +155,7 @@ function CreateRoomModal({
               )}
               onClick={handleCreateRoom}
             >
-              Create Room
+              Invite
             </Button>
             {roomCreationLoading && <LoadingSmall />}
           </div>
@@ -161,7 +164,7 @@ function CreateRoomModal({
           <div className="bg-[#faf6f9] border border-gray-200 rounded-3xl p-4 w-full max-w-md mx-1 mb-2">
             <div className="flex items-center justify-between mb-4">
               <h1 className="text-lg font-karla-bold text-primary ">
-                Room Created
+                Invitation Sent
               </h1>
               <FaX
                 className="text-sm text-gray-500 cursor-pointer"
@@ -170,7 +173,7 @@ function CreateRoomModal({
             </div>
             <Lottie animationData={successAnimation} loop={true} />
             <p className="text-sm text-gray-500 font-karla-semi-bold text-center">
-              You can now start chatting with {receiver?.username}!
+              {receiver?.username} has been invited to the group!
             </p>
           </div>
         )}
@@ -179,4 +182,4 @@ function CreateRoomModal({
   );
 }
 
-export default CreateRoomModal;
+export default InviteMemberModal;

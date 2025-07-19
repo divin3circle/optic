@@ -1,10 +1,11 @@
-import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { backend } from "../utils/index.js";
-import { useAuth } from "@nfid/identitykit/react";
+import useUserStore from "../store/user.js";
+import useChatStore from "../store/chats.js";
 
-export function usePersonalChats() {
-  const { user } = useAuth();
+export function usePersonalChats(chatId: string | null) {
+  const user = useUserStore((state) => state.user);
+  const { messageBeingSent } = useChatStore();
   if (!user) {
     return {
       messages: [],
@@ -17,16 +18,16 @@ export function usePersonalChats() {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["personal-messages"],
+    queryKey: ["personal-messages", chatId],
     queryFn: async () => {
-      const chatsIds = await getPersonalChatRoomsIds(
-        user.principal.toString() || ""
-      );
-      const messages = await Promise.all(
-        chatsIds.map(getPersonalMessagesByChatId)
-      );
+      if (!chatId) {
+        return [];
+      }
+      const messages = await getPersonalMessagesByChatId(chatId);
+
       return messages;
     },
+    enabled: !!chatId,
   });
 
   return { messages, isLoading, error };
@@ -35,9 +36,4 @@ export function usePersonalChats() {
 async function getPersonalMessagesByChatId(chatId: string) {
   const messages = await backend.get_personal_messages(chatId);
   return messages;
-}
-
-async function getPersonalChatRoomsIds(userId: string) {
-  const chatsIds = await backend.get_personal_chat_rooms(userId);
-  return chatsIds;
 }

@@ -11,25 +11,28 @@ import {
 import { EMOJI_TYPES } from "../../../../mock/emojis";
 import useChatStore from "../../../../store/chats";
 import { backend } from "../../../../utils";
-import { Principal } from "@dfinity/principal";
 import { useQueryClient } from "@tanstack/react-query";
-import { PersonalMessage } from "../../../../types/user";
+import { ChatMessage, PersonalMessage } from "../../../../types/user";
 import { toast } from "sonner";
+import useUserStore from "../../../../store/user";
+import { Principal } from "@dfinity/principal";
 
-function MessageInputBar() {
+function GroupMessageInputBar() {
+  const user = useUserStore((state) => state.user);
   const {
     setMessageBeingSent,
-    chatHeaderProps,
+    groupHeaderProps,
     setSendingMessage,
     sendingMessage,
+    setGroupMessageBeingSent,
   } = useChatStore();
-  const { selectedChatId } = useChatStore();
+  const { selectedGroupChatId } = useChatStore();
   const [userMessage, setUserMessage] = useState("");
   const [selectedEmoji, setSelectedEmoji] = useState("");
   const queryClient = useQueryClient();
 
   async function handleSendMessage() {
-    if (!selectedChatId) {
+    if (!selectedGroupChatId) {
       console.error("No chat selected");
       return;
     }
@@ -37,7 +40,7 @@ function MessageInputBar() {
       console.error("No message to send");
       return;
     }
-    if (!chatHeaderProps) {
+    if (!groupHeaderProps) {
       console.error("No chat header props");
       return;
     }
@@ -45,46 +48,52 @@ function MessageInputBar() {
       toast.error("Message must be less than 100 characters");
       return;
     }
+    if (!user) {
+      console.error("User not found");
+      return;
+    }
 
     try {
       setSendingMessage(userMessage);
-      const tempMessage = {
-        receiver: chatHeaderProps.id,
+      const tempMessage: ChatMessage = {
         messageId: `temp-${Date.now()}`, // Give it a temporary ID
+        roomId: selectedGroupChatId,
+        sender: Principal.fromText(user.id),
         content: userMessage,
         timestamp: BigInt(Date.now()),
-        read: false,
+        reactions: [],
+        replies: [],
       };
 
       // Optimistically update the cache
       queryClient.setQueryData(
-        ["personal-messages", selectedChatId],
-        (oldMessages: PersonalMessage[] = []) => [...oldMessages, tempMessage]
+        ["group-messages", selectedGroupChatId],
+        (oldMessages: ChatMessage[] = []) => [...oldMessages, tempMessage]
       );
 
-      setMessageBeingSent(tempMessage);
+      setGroupMessageBeingSent(tempMessage);
 
-      const sent = await backend.send_personal_message(
-        selectedChatId,
+      const sent = await backend.send_group_message(
+        selectedGroupChatId,
         userMessage,
-        Principal.fromText(chatHeaderProps.id)
+        user.id
       );
 
       // Invalidate to refetch and get the real message from backend
       queryClient.invalidateQueries({
-        queryKey: ["personal-messages", selectedChatId],
+        queryKey: ["group-messages", selectedGroupChatId],
       });
     } catch (error) {
       // On error, remove the optimistic message
       queryClient.setQueryData(
-        ["personal-messages", selectedChatId],
+        ["group-messages", selectedGroupChatId],
         (oldMessages: PersonalMessage[] = []) =>
           oldMessages.filter((msg) => msg.messageId !== `temp-${Date.now()}`)
       );
     } finally {
       setUserMessage("");
       setSendingMessage(null);
-      setMessageBeingSent(null);
+      setGroupMessageBeingSent(null);
     }
   }
 
@@ -146,4 +155,4 @@ function MessageInputBar() {
   );
 }
 
-export default MessageInputBar;
+export default GroupMessageInputBar;

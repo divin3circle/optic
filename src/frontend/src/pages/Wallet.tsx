@@ -27,7 +27,7 @@ function Wallet() {
         </div>
         <div className="w-full md:w-1/2">
           <h1 className="text-primary text-2xl mb-4 md:mb-8 font-karla-bold">
-            Assets
+            Main Assets
           </h1>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {DASHBOARD_TOKENS.slice(0, 2).map((token) => (

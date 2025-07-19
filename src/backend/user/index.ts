@@ -8,7 +8,7 @@
 
 import { query, update, Principal, IDL } from "azle";
 import { User, Notification } from "../types";
-import { users, username_set } from "../state";
+import { users, username_set, member_room_share_record } from "../state";
 import { log } from "../utils";
 
 export class UserService {
@@ -33,6 +33,7 @@ export class UserService {
     }
     users.set(user.id, user);
     username_set.add(user.username);
+    member_room_share_record.set(user.id, 0);
     return [user];
   }
 
@@ -124,5 +125,15 @@ export class UserService {
       return [];
     }
     return user.chatRooms;
+  }
+
+  @query([IDL.Text], IDL.Int)
+  get_member_room_share_record(id: string): number {
+    const user = users.get(id);
+    if (!user) {
+      log("User not found", { id });
+      return 0;
+    }
+    return member_room_share_record.get(id) || 0;
   }
 }

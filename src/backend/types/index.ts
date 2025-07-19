@@ -21,6 +21,34 @@ export type TreasuryRecord = {
   timestamp: bigint;
 };
 
+export const InvestmentRecord = IDL.Record({
+  token: IDL.Text,
+  amount: IDL.Float64,
+  updatedAt: IDL.Int,
+});
+export type InvestmentRecord = {
+  token: string;
+  amount: number;
+  updatedAt: bigint;
+};
+
+export const ContributionRecord = IDL.Record({
+  roomId: IDL.Text,
+  contributor: IDL.Principal,
+  amount: IDL.Float64,
+  amountInUSD: IDL.Float64,
+  token: IDL.Text,
+  timestamp: IDL.Int,
+});
+export type ContributionRecord = {
+  roomId: string;
+  contributor: Principal;
+  amount: number;
+  amountInUSD: number;
+  token: string;
+  timestamp: bigint;
+};
+
 // Investors
 export const Investor = IDL.Record({
   principalId: IDL.Principal,
@@ -47,7 +75,7 @@ export type Reply = {
   timestamp: bigint;
 };
 
-// ChatMessage
+// ChatMessage - Group Chat
 export const ChatMessage = IDL.Record({
   messageId: IDL.Text,
   roomId: IDL.Text,
@@ -73,12 +101,14 @@ export type ChatMessage = {
 };
 
 export const PersonalMessage = IDL.Record({
+  receiver: IDL.Text,
   messageId: IDL.Text,
   content: IDL.Text,
   timestamp: IDL.Int,
   read: IDL.Bool,
 });
 export type PersonalMessage = {
+  receiver: string;
   messageId: string;
   content: string;
   timestamp: bigint;
@@ -93,6 +123,7 @@ export const Notification = IDL.Record({
   message: IDL.Text,
   read: IDL.Bool,
   timestamp: IDL.Int,
+  data: IDL.Opt(IDL.Text),
 });
 export type Notification = {
   notificationId: string;
@@ -101,6 +132,7 @@ export type Notification = {
   message: string;
   read: boolean;
   timestamp: bigint;
+  data: [string] | [];
 };
 
 // Personal Chat Room
@@ -192,7 +224,7 @@ export const ChatRoom = IDL.Record({
   investedAmount: IDL.Float64,
   maxContribution: IDL.Float64,
   createdAt: IDL.Int,
-  messages: IDL.Vec(ChatMessage),
+  messages: IDL.Vec(IDL.Text),
   nextContributionDate: IDL.Int,
   nextInvestmentDate: IDL.Int,
   minimumAccountBalance: IDL.Float64,
@@ -211,7 +243,7 @@ export type ChatRoom = {
   investedAmount: number;
   maxContribution: number;
   createdAt: bigint;
-  messages: ChatMessage[];
+  messages: string[];
   nextContributionDate: bigint;
   nextInvestmentDate: bigint;
   minimumAccountBalance: number;
