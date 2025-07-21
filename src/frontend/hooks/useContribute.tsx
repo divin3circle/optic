@@ -1,31 +1,44 @@
 import { Actor } from "@dfinity/agent";
 import { fromHexString } from "@dfinity/candid";
-import { AccountIdentifier, idlFactory } from "@dfinity/ledger-icp";
+import { AccountIdentifier, LedgerCanister } from "@dfinity/ledger-icp";
 import { Principal } from "@dfinity/principal";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { useAgent } from "@nfid/identitykit/react";
-import { useQuery } from "@tanstack/react-query";
+import { ledgerFactory } from "../utils/ledgerFactory";
 
-export function useContribute(amount: number) {}
-
-async function requestTransfer(amount: number): Promise<boolean> {
+export function useContribute(amount: number) {
   const agent = useAgent();
+  return useMutation({
+    mutationFn: (amount: number) => requestTransfer(amount, agent),
+    onSuccess: () => {
+      toast.success("Contribution successful");
+    },
+    onError: () => {
+      toast.error("Contribution failed");
+    },
+  });
+}
 
-  // you'll need to import the idlFactory for ICP (or any other ledger canister)
-  // and specify which canister you're calling, in this case the ICP ledger.
-  // note: it would be very helpful to have a common 'ICRCledgerFactory'
-  // so individual ledger canister idl's don't need to be imported.
-  const actor = Actor.createActor(idlFactory, {
+export async function requestTransfer(
+  amount: number,
+  agent: any
+): Promise<boolean> {
+  console.log("requestTransfer");
+
+  const actor = Actor.createActor(ledgerFactory, {
     agent,
     canisterId: "ryjl3-tyaaa-aaaaa-aaaba-cai",
   });
 
-  const destinationPrincipal = SOME_DESTINATION_PRINCIPAL;
-  const address = AccountIdentifier.fromPrincipal({
+  const destinationPrincipal =
+    "4ppas-bcjk7-pvvzg-uy6xp-7cblq-56to3-gryyo-7sjbq-5anil-7uufn-3ae";
+  const toAccount = AccountIdentifier.fromPrincipal({
     principal: Principal.fromText(destinationPrincipal),
-  }).toHex();
+  });
 
   const transferArgs = {
-    to: fromHexString(address),
+    to: Array.from(toAccount.toUint8Array()),
     fee: { e8s: BigInt(10000) },
     memo: BigInt(0),
     from_subaccount: [],

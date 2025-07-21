@@ -2,13 +2,21 @@ import { motion } from "framer-motion";
 import { GroupEarningsGraph } from "./GroupEarningsGraph";
 import useChatStore from "../../../../store/chats";
 import { FaEllipsisH, FaHandHoldingUsd, FaPlus } from "react-icons/fa";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import GroupMembersView from "./GroupMembersView";
 import { Button } from "@/components/ui/button";
 import GroupTreasury from "./GroupTreasury";
+import {
+  useContribute,
+  requestTransfer,
+} from "../../../../hooks/useContribute";
+import { LoadingSmall } from "@/components/ui/Loading";
+import { useAgent } from "@nfid/identitykit/react";
 
 function GroupProfile() {
   const { groupHeaderProps, setViewingGroupProfile } = useChatStore();
+  const agent = useAgent();
+  const { mutate: contribute, isPending } = useContribute(1);
 
   if (!groupHeaderProps) {
     return null;
@@ -50,11 +58,18 @@ function GroupProfile() {
           <Button
             variant="ghost"
             className="bg-[#e8492a] hover:bg-[#e8492a]/90 rounded-full w-1/2 md:w-1/4"
+            onClick={() => requestTransfer(100000000, agent)}
+            disabled={isPending}
           >
-            <FaHandHoldingUsd className="w-4 h-4 text-[#faf6f9]" />
-            <span className="text-[#faf6f9] text-sm font-karla-semi-bold">
-              Contribute
-            </span>
+            {!isPending && (
+              <>
+                <FaHandHoldingUsd className="w-4 h-4 text-[#faf6f9]" />
+                <span className="text-[#faf6f9] text-sm font-karla-semi-bold">
+                  Contribute
+                </span>
+              </>
+            )}
+            {isPending && <LoadingSmall />}
           </Button>
         </div>
         <div className="flex flex-col items-center mt-4">
