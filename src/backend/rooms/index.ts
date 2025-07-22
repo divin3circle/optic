@@ -22,6 +22,12 @@ import {
   generate_message_id,
   generate_notification_id,
   log,
+  toBigInt,
+  fromBigInt,
+  addBigInt,
+  calculateFeeShare,
+  isPositiveBigInt,
+  usdToBigInt,
 } from "../utils";
 import {
   ChatMessage,
@@ -90,23 +96,23 @@ export class GroupChatService {
       profileImage: profile_image,
       admin: Principal.fromText(created_by),
       members: [Principal.fromText(created_by)],
-      treasury: { token: treasury_token, amount: 0 },
+      treasury: { token: treasury_token, amount: BigInt(0) },
       investors: [],
       contributionCycle: contribution_cycle,
       investmentCycle: investment_cycle,
-      investedAmount: 0,
-      maxContribution: max_contribution,
+      investedAmount: BigInt(0),
+      maxContribution: toBigInt(max_contribution),
       createdAt: BigInt(Date.now()),
       messages: [],
       nextContributionDate: next_contribution_date,
       nextInvestmentDate: next_investment_date,
-      minimumAccountBalance: 0,
+      minimumAccountBalance: BigInt(0),
     };
     chat_rooms.set(new_chat_room.id, new_chat_room);
     user.chatRooms.push(new_chat_room.id);
     room_investment_records.set(new_chat_room.id, {
       token: treasury_token,
-      amount: 0,
+      amount: BigInt(0),
       updatedAt: BigInt(Date.now()),
     });
     this.send_notification(
@@ -293,17 +299,20 @@ export class GroupChatService {
     return true;
   }
 
-  @update([IDL.Text, IDL.Float64, IDL.Text, IDL.Principal], IDL.Bool)
+  @update([IDL.Text, IDL.Int, IDL.Text, IDL.Principal], IDL.Bool)
   async contribute_to_chat_room(
     group_chat_id: string,
-    amount: number,
+    amount: bigint,
     token: string,
     contributor: Principal
   ): Promise<boolean> {
     try {
       // Input validation
-      if (amount <= 0) {
-        log("Invalid contribution amount", { amount, group_chat_id });
+      if (!isPositiveBigInt(amount)) {
+        log("Invalid contribution amount", {
+          amount: amount.toString(),
+          group_chat_id,
+        });
         return false;
       }
 
@@ -332,10 +341,10 @@ export class GroupChatService {
       }
 
       // Check contribution limits
-      if (room.maxContribution > 0 && amount > room.maxContribution) {
+      if (room.maxContribution > BigInt(0) && amount > room.maxContribution) {
         log("Contribution exceeds maximum allowed", {
-          amount,
-          maxContribution: room.maxContribution,
+          amount: amount.toString(),
+          maxContribution: room.maxContribution.toString(),
         });
         return false;
       }
@@ -350,30 +359,30 @@ export class GroupChatService {
       // Calculate total amount before this contribution
       const totalAmountBefore = room.investors
         .map((investor) => investor.amountInvested)
-        .reduce((a, b) => a + b, 0);
+        .reduce((a, b) => addBigInt(a, b), BigInt(0));
 
       // Check if this user already has an investment in this room
       const existingInvestorIndex = room.investors.findIndex(
         (investor) => investor.principalId.toString() === contributor.toString()
       );
 
-      let newTotalAmount: number;
-      let newFeeShare: number;
+      let newTotalAmount: bigint;
+      let newFeeShare: bigint;
 
       if (existingInvestorIndex !== -1) {
         // User already has an investment - update their amount
         const existingInvestor = room.investors[existingInvestorIndex];
-        const newAmount = existingInvestor.amountInvested + amount;
-        newTotalAmount = totalAmountBefore + amount;
-        newFeeShare = newTotalAmount === 0 ? 1 : newAmount / newTotalAmount;
+        const newAmount = addBigInt(existingInvestor.amountInvested, amount);
+        newTotalAmount = addBigInt(totalAmountBefore, amount);
+        newFeeShare = calculateFeeShare(newAmount, newTotalAmount);
 
         // Update existing investor
         room.investors[existingInvestorIndex].amountInvested = newAmount;
         room.investors[existingInvestorIndex].feeShare = newFeeShare;
       } else {
         // New investor
-        newTotalAmount = totalAmountBefore + amount;
-        newFeeShare = newTotalAmount === 0 ? 1 : amount / newTotalAmount;
+        newTotalAmount = addBigInt(totalAmountBefore, amount);
+        newFeeShare = calculateFeeShare(amount, newTotalAmount);
 
         const investor: Investor = {
           principalId: contributor,
@@ -385,8 +394,10 @@ export class GroupChatService {
 
       // Recalculate ALL investors' fee shares based on new total
       room.investors.forEach((investor) => {
-        investor.feeShare =
-          newTotalAmount === 0 ? 0 : investor.amountInvested / newTotalAmount;
+        investor.feeShare = calculateFeeShare(
+          investor.amountInvested,
+          newTotalAmount
+        );
       });
 
       // Create contribution record
@@ -394,7 +405,7 @@ export class GroupChatService {
         contributor: contributor,
         roomId: group_chat_id,
         amount: amount,
-        amountInUSD: amount * conversionRate,
+        amountInUSD: usdToBigInt(fromBigInt(amount) * conversionRate),
         token: token,
         timestamp: BigInt(Date.now()),
       };
@@ -405,12 +416,18 @@ export class GroupChatService {
         log("Room investment record not found", { group_chat_id });
         return false;
       }
-      room_investment_record.amount += amount;
+      room_investment_record.amount = addBigInt(
+        room_investment_record.amount,
+        amount
+      );
       room_investment_record.updatedAt = BigInt(Date.now());
 
       // Update member's share of the room with unique key (userId_roomId)
       const memberRoomKey = `${contributor.toString()}_${group_chat_id}`;
-      member_room_share_record.set(memberRoomKey, newFeeShare);
+      member_room_share_record.set(
+        memberRoomKey,
+        fromBigInt(newFeeShare) / 10000
+      ); // Convert basis points to decimal
 
       // Update room's contribution records
       const existingContributions =
@@ -434,27 +451,36 @@ export class GroupChatService {
         };
         treasury_record.push(new_treasury_record);
       } else {
-        treasury_record[tokenIndex].amount += amount;
+        treasury_record[tokenIndex].amount = addBigInt(
+          treasury_record[tokenIndex].amount,
+          amount
+        );
         treasury_record[tokenIndex].timestamp = BigInt(Date.now());
       }
       treasury_records.set(group_chat_id, treasury_record);
 
       // Calculate and update room's share relative to all groups
       // This requires calculating total contributions across all rooms
-      let totalAllRoomsContribution = 0;
+      let totalAllRoomsContribution = BigInt(0);
       for (const [roomId, investmentRecord] of room_investment_records) {
-        totalAllRoomsContribution += investmentRecord.amount;
+        totalAllRoomsContribution = addBigInt(
+          totalAllRoomsContribution,
+          investmentRecord.amount
+        );
       }
 
       const roomSharePercentage =
-        totalAllRoomsContribution === 0
+        totalAllRoomsContribution === BigInt(0)
           ? 0
-          : room_investment_record.amount / totalAllRoomsContribution;
+          : fromBigInt(room_investment_record.amount) /
+            fromBigInt(totalAllRoomsContribution);
       room_share_record.set(group_chat_id, roomSharePercentage);
 
       // Send notification to room admin about the contribution
       this.send_notification(
-        `New contribution of ${amount} ${token} received from ${user.username}`,
+        `New contribution of ${fromBigInt(amount)} ${token} received from ${
+          user.username
+        }`,
         "system",
         "New Contribution",
         room.admin,
@@ -464,9 +490,9 @@ export class GroupChatService {
       log("Contribution processed successfully", {
         group_chat_id,
         contributor: contributor.toString(),
-        amount,
+        amount: amount.toString(),
         token,
-        newFeeShare,
+        newFeeShare: fromBigInt(newFeeShare) / 10000,
         roomSharePercentage,
       });
 
@@ -476,7 +502,7 @@ export class GroupChatService {
         error,
         group_chat_id,
         contributor: contributor.toString(),
-        amount,
+        amount: amount.toString(),
       });
       return false;
     }
