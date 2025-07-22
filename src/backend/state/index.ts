@@ -10,6 +10,7 @@ import {
   Contribution,
   ContributionRecord,
   InvestmentRecord,
+  MemberContributionRecord,
   PersonalChatRoom,
   PersonalMessage,
   TreasuryRecord,
@@ -28,4 +29,8 @@ export const room_investment_records: Map<string, InvestmentRecord> = new Map();
 export const room_contribution_records: Map<string, ContributionRecord[]> =
   new Map();
 export const member_room_share_record: Map<string, number> = new Map();
+export const member_contribution_records: Map<
+  string,
+  MemberContributionRecord[]
+> = new Map();
 export const room_share_record: Map<string, number> = new Map();

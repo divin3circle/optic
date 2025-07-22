@@ -7,8 +7,13 @@
  */
 
 import { query, update, Principal, IDL } from "azle";
-import { User, Notification } from "../types";
-import { users, username_set, member_room_share_record } from "../state";
+import { User, Notification, MemberContributionRecord } from "../types";
+import {
+  users,
+  username_set,
+  member_room_share_record,
+  member_contribution_records,
+} from "../state";
 import { log } from "../utils";
 
 export class UserService {
@@ -135,5 +140,10 @@ export class UserService {
       return 0;
     }
     return member_room_share_record.get(id) || 0;
+  }
+
+  @query([IDL.Text], IDL.Vec(MemberContributionRecord))
+  get_member_contribution_records(id: string): MemberContributionRecord[] {
+    return member_contribution_records.get(id) || [];
   }
 }

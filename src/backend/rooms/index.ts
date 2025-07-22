@@ -10,6 +10,7 @@ import { IDL, Principal, query, update } from "azle";
 import {
   chat_rooms,
   group_messages,
+  member_contribution_records,
   member_room_share_record,
   room_contribution_records,
   room_investment_records,
@@ -33,6 +34,7 @@ import {
   ChatMessage,
   ChatRoom,
   Investor,
+  MemberContributionRecord,
   Notification,
   InvestmentRecord,
   TreasuryRecord,
@@ -437,6 +439,23 @@ export class GroupChatService {
         contribution_record,
       ]);
 
+      // Update member's contribution records across all rooms
+      const memberKey = contributor.toString();
+      const existingMemberContributions =
+        member_contribution_records.get(memberKey) || [];
+      const memberContributionRecord: MemberContributionRecord = {
+        roomId: group_chat_id,
+        room: room.name,
+        amount: amount,
+        amountInUSD: contribution_record.amountInUSD,
+        token: token,
+        timestamp: BigInt(Date.now()),
+      };
+      member_contribution_records.set(memberKey, [
+        ...existingMemberContributions,
+        memberContributionRecord,
+      ]);
+
       // Update treasury records
       const treasury_record = treasury_records.get(group_chat_id) || [];
       const tokenIndex = treasury_record.findIndex(
@@ -487,6 +506,10 @@ export class GroupChatService {
         []
       );
 
+      // Calculate member's total contributions across all rooms for logging
+      const memberTotalContributions =
+        member_contribution_records.get(contributor.toString())?.length || 0;
+
       log("Contribution processed successfully", {
         group_chat_id,
         contributor: contributor.toString(),
@@ -494,6 +517,9 @@ export class GroupChatService {
         token,
         newFeeShare: fromBigInt(newFeeShare) / 10000,
         roomSharePercentage,
+        memberTotalContributions,
+        memberTotalRooms:
+          member_contribution_records.get(contributor.toString())?.length || 0,
       });
 
       return true;
@@ -593,5 +619,56 @@ export class GroupChatService {
       return token.slice(2);
     }
     return token;
+  }
+
+  @query([IDL.Principal], IDL.Vec(MemberContributionRecord))
+  get_member_contribution_records(
+    member: Principal
+  ): MemberContributionRecord[] {
+    const memberKey = member.toString();
+    const contributions = member_contribution_records.get(memberKey) || [];
+
+    log("Retrieved member contribution records", {
+      member: memberKey,
+      totalContributions: contributions.length,
+    });
+
+    return contributions;
+  }
+
+  @query([IDL.Principal], IDL.Int)
+  get_member_total_contributions(member: Principal): bigint {
+    const memberKey = member.toString();
+    const contributions = member_contribution_records.get(memberKey) || [];
+
+    const totalAmount = contributions.reduce((total, record) => {
+      return addBigInt(total, record.amount);
+    }, BigInt(0));
+
+    log("Calculated member total contributions", {
+      member: memberKey,
+      totalAmount: totalAmount.toString(),
+      contributionCount: contributions.length,
+    });
+
+    return totalAmount;
+  }
+
+  @query([IDL.Principal], IDL.Int)
+  get_member_total_contributions_usd(member: Principal): bigint {
+    const memberKey = member.toString();
+    const contributions = member_contribution_records.get(memberKey) || [];
+
+    const totalUSD = contributions.reduce((total, record) => {
+      return addBigInt(total, record.amountInUSD);
+    }, BigInt(0));
+
+    log("Calculated member total USD contributions", {
+      member: memberKey,
+      totalUSD: totalUSD.toString(),
+      contributionCount: contributions.length,
+    });
+
+    return totalUSD;
   }
 }

@@ -48,6 +48,22 @@ export type ContributionRecord = {
   token: string;
   timestamp: bigint;
 };
+export const MemberContributionRecord = IDL.Record({
+  roomId: IDL.Text,
+  room: IDL.Text,
+  amount: IDL.Int, // Changed from IDL.Float64 to IDL.Int for precision
+  amountInUSD: IDL.Int, // Changed from IDL.Float64 to IDL.Int for precision
+  token: IDL.Text,
+  timestamp: IDL.Int,
+});
+export type MemberContributionRecord = {
+  roomId: string;
+  room: string;
+  amount: bigint; // Changed from number to bigint
+  amountInUSD: bigint; // Changed from number to bigint
+  token: string;
+  timestamp: bigint;
+};
 
 // Investors
 export const Investor = IDL.Record({
