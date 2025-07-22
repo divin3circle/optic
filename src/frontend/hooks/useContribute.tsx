@@ -28,22 +28,38 @@
  * @returns useMutation hook for contribution functionality
  */
 
+const REQUEST_TRANSFER_TO =
+  "4ppas-bcjk7-pvvzg-uy6xp-7cblq-56to3-gryyo-7sjbq-5anil-7uufn-3ae";
+const MEMO = "Contribution to group";
+const host = "https://icp-api.io";
+const nnsCanisterId = "qoctq-giaaa-aaaaa-aaaea-cai";
+
+// Whitelist
+const whitelist = [nnsCanisterId];
+
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { backend } from "../utils";
+import useChatStore from "../store/chats";
+import useUserStore from "../store/user";
+import { Principal } from "@dfinity/principal";
 
 // TypeScript declarations for Plug wallet
 declare global {
   interface Window {
     ic?: {
       plug?: {
-        requestConnect: () => Promise<boolean>;
+        requestConnect: (params: {
+          whitelist: string[];
+          host: string;
+        }) => Promise<boolean>;
         requestTransfer: (params: {
           to: string;
           amount: number;
-          memo?: string;
+          memo: string;
         }) => Promise<{ height: number }>;
         agent?: any;
-        createActor?: (params: {
+        createActor: (params: {
           canisterId: string;
           interfaceFactory: any;
         }) => any;
@@ -66,7 +82,6 @@ export interface ContributionResult {
   groupName?: string;
 }
 
-// Helper function to check Plug's network configuration
 export async function checkPlugNetworkConfig() {
   try {
     console.log("🔍 Checking Plug network configuration...");
@@ -76,9 +91,12 @@ export async function checkPlugNetworkConfig() {
       return { available: false, error: "Plug not detected" };
     }
 
-    // Try to get Plug's current network info
     console.log("📡 Attempting to connect to Plug...");
-    const isConnected = await window.ic.plug.requestConnect();
+
+    const isConnected = await window.ic.plug.requestConnect({
+      whitelist,
+      host,
+    });
 
     if (isConnected) {
       console.log("✅ Plug connection successful");
@@ -106,13 +124,18 @@ export async function checkPlugNetworkConfig() {
 }
 
 export function useContribute(amount: number) {
+  const { selectedGroupChatId } = useChatStore();
+  const { user } = useUserStore();
   return useMutation({
     mutationFn: async (): Promise<ContributionResult> => {
+      if (!selectedGroupChatId || !user) {
+        throw new Error("Group chat ID or user not found");
+      }
+
       const timestamp = Date.now();
       const amountE8s = Math.floor(amount * 100000000);
-      const destination =
-        "4ppas-bcjk7-pvvzg-uy6xp-7cblq-56to3-gryyo-7sjbq-5anil-7uufn-3ae";
-      const memo = "Contribution to group";
+      const destination = REQUEST_TRANSFER_TO;
+      const memo = MEMO;
 
       console.log("🚀 Starting ICP contribution:", {
         amount,
@@ -122,7 +145,6 @@ export function useContribute(amount: number) {
         timestamp: new Date(timestamp).toISOString(),
       });
 
-      // Check if Plug is available
       if (!window?.ic?.plug) {
         const error = "Plug wallet extension not detected!";
         console.error("❌ Plug wallet error:", error);
@@ -141,13 +163,15 @@ export function useContribute(amount: number) {
       }
 
       try {
-        // Request connection first
         console.log("🔗 Requesting Plug wallet connection...");
         console.log(
           "🌐 Current network check - Plug should connect to IC mainnet"
         );
 
-        const isConnected = await window.ic.plug.requestConnect();
+        const isConnected = await window.ic.plug.requestConnect({
+          whitelist,
+          host,
+        });
 
         if (!isConnected) {
           const error = "Plug wallet connection was refused";
@@ -168,7 +192,6 @@ export function useContribute(amount: number) {
 
         console.log("✅ Plug wallet connected successfully");
 
-        // Request transfer
         const transferParams = {
           to: destination,
           amount: amountE8s,
@@ -202,7 +225,6 @@ export function useContribute(amount: number) {
         const errorMessage =
           error instanceof Error ? error.message : String(error);
 
-        // Enhanced error logging for debugging
         console.error("❌ Transfer failed with detailed error:", {
           error: errorMessage,
           errorType:
@@ -215,7 +237,6 @@ export function useContribute(amount: number) {
           timestamp: new Date(timestamp).toISOString(),
         });
 
-        // Check for specific error types
         if (
           errorMessage.includes("CORS") ||
           errorMessage.includes("localhost:5000")
@@ -254,23 +275,26 @@ export function useContribute(amount: number) {
         return result;
       }
     },
-    onSuccess: (result: ContributionResult) => {
+    onSuccess: async (result: ContributionResult) => {
       if (result.success) {
         toast.success(
           `Contribution successful! Block height: ${result.blockHeight}`
         );
         console.log("🎉 Contribution completed successfully:", result);
 
-        // TODO: Call your backend canister here with the result
-        // Example:
-        // await callBackendContribute({
-        //   blockHeight: result.blockHeight,
-        //   amount: result.amount,
-        //   amountE8s: result.amountE8s,
-        //   destination: result.destination,
-        //   memo: result.memo,
-        //   timestamp: result.timestamp,
-        // });
+        // TODO: Call backend canister with the result
+        const recorded = await backend.contribute_to_chat_room(
+          selectedGroupChatId || "",
+          BigInt(result.amountE8s),
+          "ICP",
+          Principal.fromText(user?.id || "")
+        );
+
+        if (recorded) {
+          toast.success("Contribution recorded successfully");
+        } else {
+          toast.error("Contribution recording failed");
+        }
       } else {
         toast.error(`Contribution failed: ${result.error}`);
         console.error("💥 Contribution failed:", result);
@@ -283,49 +307,6 @@ export function useContribute(amount: number) {
   });
 }
 
-// Helper function to call backend canister (you can implement this)
-export async function callBackendContribute(
-  contributionData: ContributionResult
-) {
-  try {
-    console.log(
-      "📞 Calling backend canister with contribution data:",
-      contributionData
-    );
-
-    // TODO: Implement your backend canister call here
-    // Example:
-    // const response = await yourBackendActor.contribute_to_chat_room({
-    //   group_chat_id: contributionData.groupId || "default-group-id",
-    //   amount: contributionData.amountE8s,
-    //   token: "ICP",
-    //   contributor: userPrincipal, // You'll need to get this from your auth system
-    //   blockHeight: contributionData.blockHeight,
-    //   timestamp: contributionData.timestamp,
-    // });
-
-    // For now, we'll just log the data structure you can use
-    console.log("📋 Backend canister call data structure:", {
-      group_chat_id: contributionData.groupId,
-      amount: contributionData.amountE8s,
-      token: "ICP",
-      contributor: "USER_PRINCIPAL_HERE", // Replace with actual user principal
-      blockHeight: contributionData.blockHeight,
-      timestamp: contributionData.timestamp,
-      groupName: contributionData.groupName,
-      memo: contributionData.memo,
-      destination: contributionData.destination,
-    });
-
-    console.log("✅ Backend contribution logged successfully");
-    return true;
-  } catch (error) {
-    console.error("❌ Failed to log contribution in backend:", error);
-    return false;
-  }
-}
-
-// Legacy function for backward compatibility
 export async function requestTransfer(
   amount: number,
   agent: any
@@ -336,7 +317,6 @@ export async function requestTransfer(
   return false;
 }
 
-// Legacy function for backward compatibility
 export async function sendICP(e8s: number) {
   console.warn("sendICP is deprecated. Use useContribute hook instead.");
 
@@ -346,16 +326,19 @@ export async function sendICP(e8s: number) {
   }
 
   try {
-    const isConnected = await window.ic.plug.requestConnect();
+    const isConnected = await window.ic.plug.requestConnect({
+      whitelist,
+      host,
+    });
     if (!isConnected) {
       console.error("Plug wallet connection was refused");
       return;
     }
 
     const transferParams = {
-      to: "4ppas-bcjk7-pvvzg-uy6xp-7cblq-56to3-gryyo-7sjbq-5anil-7uufn-3ae",
+      to: REQUEST_TRANSFER_TO,
       amount: e8s,
-      memo: "Contribution to group",
+      memo: MEMO,
     };
 
     const result = await window.ic.plug.requestTransfer(transferParams);

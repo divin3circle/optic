@@ -24,6 +24,7 @@ export default defineConfig({
       },
     },
     host: "127.0.0.1",
+    cors: false,
   },
   plugins: [
     tailwindcss(),
