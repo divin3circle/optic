@@ -6,7 +6,11 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import GroupMembersView from "./GroupMembersView";
 import { Button } from "@/components/ui/button";
 import GroupTreasury from "./GroupTreasury";
-import { useContribute } from "../../../../hooks/useContribute";
+import {
+  useContribute,
+  callBackendContribute,
+  ContributionResult,
+} from "../../../../hooks/useContribute";
 import { LoadingSmall } from "@/components/ui/Loading";
 
 // 1 ICP = 100,000,000 e8s
@@ -20,8 +24,33 @@ function GroupProfile() {
     return null;
   }
 
-  const handleContribute = () => {
-    contribute();
+  const handleContribute = async () => {
+    contribute(undefined, {
+      onSuccess: async (result: ContributionResult) => {
+        if (result.success) {
+          console.log(
+            "🎯 Frontend contribution successful, calling backend..."
+          );
+
+          // Call backend canister to log the contribution
+          const backendSuccess = await callBackendContribute({
+            ...result,
+            // Add group-specific data
+            groupId: groupHeaderProps.id,
+            groupName: groupHeaderProps.name,
+          });
+
+          if (backendSuccess) {
+            console.log("✅ Backend contribution logged successfully");
+            // You could trigger a refetch of group data here
+            // or update the UI to reflect the new contribution
+          } else {
+            console.error("❌ Backend contribution logging failed");
+            // You might want to show a warning to the user
+          }
+        }
+      },
+    });
   };
 
   return (
