@@ -6,24 +6,24 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import GroupMembersView from "./GroupMembersView";
 import { Button } from "@/components/ui/button";
 import GroupTreasury from "./GroupTreasury";
-import {
-  useContribute,
-  requestTransfer,
-  sendICP,
-} from "../../../../hooks/useContribute";
+import { useContribute } from "../../../../hooks/useContribute";
 import { LoadingSmall } from "@/components/ui/Loading";
-import { useAgent } from "@nfid/identitykit/react";
 
-const DEFAULT_CONTRIBUTION = 100000000;
+// 1 ICP = 100,000,000 e8s
+const DEFAULT_CONTRIBUTION = 1; // 1 ICP
 
 function GroupProfile() {
   const { groupHeaderProps, setViewingGroupProfile } = useChatStore();
-  const agent = useAgent();
   const { mutate: contribute, isPending } = useContribute(DEFAULT_CONTRIBUTION);
 
   if (!groupHeaderProps) {
     return null;
   }
+
+  const handleContribute = () => {
+    contribute();
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 100 }}
@@ -61,14 +61,14 @@ function GroupProfile() {
           <Button
             variant="ghost"
             className="bg-[#e8492a] hover:bg-[#e8492a]/90 rounded-full w-1/2 md:w-1/4"
-            onClick={() => sendICP(DEFAULT_CONTRIBUTION)}
+            onClick={handleContribute}
             disabled={isPending}
           >
             {!isPending && (
               <>
                 <FaHandHoldingUsd className="w-4 h-4 text-[#faf6f9]" />
                 <span className="text-[#faf6f9] text-sm font-karla-semi-bold">
-                  Contribute
+                  Contribute {DEFAULT_CONTRIBUTION} ICP
                 </span>
               </>
             )}
