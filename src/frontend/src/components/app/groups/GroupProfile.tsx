@@ -9,14 +9,17 @@ import GroupTreasury from "./GroupTreasury";
 import {
   useContribute,
   requestTransfer,
+  sendICP,
 } from "../../../../hooks/useContribute";
 import { LoadingSmall } from "@/components/ui/Loading";
 import { useAgent } from "@nfid/identitykit/react";
 
+const DEFAULT_CONTRIBUTION = 100000000;
+
 function GroupProfile() {
   const { groupHeaderProps, setViewingGroupProfile } = useChatStore();
   const agent = useAgent();
-  const { mutate: contribute, isPending } = useContribute(1);
+  const { mutate: contribute, isPending } = useContribute(DEFAULT_CONTRIBUTION);
 
   if (!groupHeaderProps) {
     return null;
@@ -58,7 +61,7 @@ function GroupProfile() {
           <Button
             variant="ghost"
             className="bg-[#e8492a] hover:bg-[#e8492a]/90 rounded-full w-1/2 md:w-1/4"
-            onClick={() => requestTransfer(100000, agent)}
+            onClick={() => sendICP(DEFAULT_CONTRIBUTION)}
             disabled={isPending}
           >
             {!isPending && (
