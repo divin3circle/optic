@@ -38,7 +38,7 @@ function Settings() {
           </div>
         </div>
         <div className="flex items-end gap-2 flex-col w-full">
-          <button className="bg-[#e8492a] text-sm md:text-base text-white p-2 w-full md:w-1/4 rounded-md font-karla-bold ">
+          <button className="bg-[#e8492a] text-sm md:text-base text-white p-2 md:w-1/4 rounded-md font-karla-bold ">
             Claim Rewards
           </button>
           <p className="text-gray-500 text-xs md:text-sm font-karla">

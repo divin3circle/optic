@@ -41,7 +41,7 @@ function GroupProfile() {
           <img
             src={groupHeaderProps.profileImage}
             alt="Group Profile"
-            className="w-24 h-24 rounded-full"
+            className="w-24 h-24 rounded-full border border-gray-200"
           />
           <FaEllipsisH className="w-4 h-4 text-gray-500" />
         </div>
@@ -96,7 +96,7 @@ function GroupProfile() {
         <GroupTreasury />
         <a
           href="#"
-          className="text-gray-400 text-sm font-karla-semi-bold text-center mt-4 cursor-pointer underline hover:text-primary transition-all duration-300"
+          className="text-gray-400 mb-4 md:mb-0 text-sm font-karla-semi-bold text-center mt-4 cursor-pointer underline hover:text-primary transition-all duration-300"
         >
           More Details
         </a>

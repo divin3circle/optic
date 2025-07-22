@@ -13,6 +13,7 @@ import {
   member_room_share_record,
   room_contribution_records,
   room_investment_records,
+  room_share_record,
   treasury_records,
   users,
 } from "../state";
@@ -299,84 +300,186 @@ export class GroupChatService {
     token: string,
     contributor: Principal
   ): Promise<boolean> {
-    // we need to update the room_share_record, member_room_share_recordx,  room_contribution_recordsx
-    // room_investment_recordsx,
-    const room = chat_rooms.get(group_chat_id);
-    if (!room) {
-      log("Chat room not found", { group_chat_id });
-      return false;
-    }
+    try {
+      // Input validation
+      if (amount <= 0) {
+        log("Invalid contribution amount", { amount, group_chat_id });
+        return false;
+      }
 
-    const user = users.get(contributor.toString());
-    if (!user) {
-      log(
-        "The user contributing is not on the platform",
-        contributor.toString()
-      );
-      return false;
-    }
+      const room = chat_rooms.get(group_chat_id);
+      if (!room) {
+        log("Chat room not found", { group_chat_id });
+        return false;
+      }
 
-    let feeShare = 0;
-    if (room.investors.length === 0) {
-      feeShare = 1; // 100% if first investor
-    } else {
-      const total_amount = room.investors
+      const user = users.get(contributor.toString());
+      if (!user) {
+        log(
+          "The user contributing is not on the platform",
+          contributor.toString()
+        );
+        return false;
+      }
+
+      // Check if user is a member of the room
+      if (!room.members.includes(contributor)) {
+        log("User is not a member of this room", {
+          contributor: contributor.toString(),
+          group_chat_id,
+        });
+        return false;
+      }
+
+      // Check contribution limits
+      if (room.maxContribution > 0 && amount > room.maxContribution) {
+        log("Contribution exceeds maximum allowed", {
+          amount,
+          maxContribution: room.maxContribution,
+        });
+        return false;
+      }
+
+      // Get conversion rate for USD calculation
+      const conversionRate = await this.get_conversion_rate(token);
+      if (conversionRate <= 0) {
+        log("Invalid conversion rate", { token, conversionRate });
+        return false;
+      }
+
+      // Calculate total amount before this contribution
+      const totalAmountBefore = room.investors
         .map((investor) => investor.amountInvested)
         .reduce((a, b) => a + b, 0);
-      feeShare = total_amount === 0 ? 1 : amount / (total_amount + amount);
-    }
 
-    const investor: Investor = {
-      principalId: contributor,
-      amountInvested: amount,
-      feeShare: feeShare,
-    };
-    const conversionRate = await this.get_conversion_rate(token);
-    const contribution_record: ContributionRecord = {
-      contributor: contributor,
-      roomId: group_chat_id,
-      amount: amount,
-      amountInUSD: amount * conversionRate,
-      token: token,
-      timestamp: BigInt(Date.now()),
-    };
-    // update the room's investors
-    room.investors.push(investor);
-    // room investment record
-    const room_investment_record = room_investment_records.get(group_chat_id);
-    if (!room_investment_record) {
-      log("Room investment record not found", { group_chat_id });
-      return false;
-    }
-    room_investment_record.amount += amount;
-    room_investment_record.updatedAt = BigInt(Date.now());
-    // update a member's share of the room -> member_room_share_record
-    member_room_share_record.set(contributor.toString(), feeShare);
-    // update the room's contribution records -> room_contribution_records
-    room_contribution_records.set(group_chat_id, [
-      ...(room_contribution_records.get(group_chat_id) || []),
-      contribution_record,
-    ]);
+      // Check if this user already has an investment in this room
+      const existingInvestorIndex = room.investors.findIndex(
+        (investor) => investor.principalId.toString() === contributor.toString()
+      );
 
-    const treasury_record = treasury_records.get(group_chat_id) || [];
-    const tokenIndex = treasury_record.findIndex(
-      (record) => record.token === token
-    );
+      let newTotalAmount: number;
+      let newFeeShare: number;
 
-    if (tokenIndex === -1) {
-      const new_treasury_record: TreasuryRecord = {
-        token: token,
+      if (existingInvestorIndex !== -1) {
+        // User already has an investment - update their amount
+        const existingInvestor = room.investors[existingInvestorIndex];
+        const newAmount = existingInvestor.amountInvested + amount;
+        newTotalAmount = totalAmountBefore + amount;
+        newFeeShare = newTotalAmount === 0 ? 1 : newAmount / newTotalAmount;
+
+        // Update existing investor
+        room.investors[existingInvestorIndex].amountInvested = newAmount;
+        room.investors[existingInvestorIndex].feeShare = newFeeShare;
+      } else {
+        // New investor
+        newTotalAmount = totalAmountBefore + amount;
+        newFeeShare = newTotalAmount === 0 ? 1 : amount / newTotalAmount;
+
+        const investor: Investor = {
+          principalId: contributor,
+          amountInvested: amount,
+          feeShare: newFeeShare,
+        };
+        room.investors.push(investor);
+      }
+
+      // Recalculate ALL investors' fee shares based on new total
+      room.investors.forEach((investor) => {
+        investor.feeShare =
+          newTotalAmount === 0 ? 0 : investor.amountInvested / newTotalAmount;
+      });
+
+      // Create contribution record
+      const contribution_record: ContributionRecord = {
+        contributor: contributor,
+        roomId: group_chat_id,
         amount: amount,
+        amountInUSD: amount * conversionRate,
+        token: token,
         timestamp: BigInt(Date.now()),
       };
-      treasury_record.push(new_treasury_record);
-    } else {
-      treasury_record[tokenIndex].amount += amount;
-      treasury_record[tokenIndex].timestamp = BigInt(Date.now());
-    }
-    treasury_records.set(group_chat_id, treasury_record);
 
-    return true;
+      // Update room investment record
+      const room_investment_record = room_investment_records.get(group_chat_id);
+      if (!room_investment_record) {
+        log("Room investment record not found", { group_chat_id });
+        return false;
+      }
+      room_investment_record.amount += amount;
+      room_investment_record.updatedAt = BigInt(Date.now());
+
+      // Update member's share of the room with unique key (userId_roomId)
+      const memberRoomKey = `${contributor.toString()}_${group_chat_id}`;
+      member_room_share_record.set(memberRoomKey, newFeeShare);
+
+      // Update room's contribution records
+      const existingContributions =
+        room_contribution_records.get(group_chat_id) || [];
+      room_contribution_records.set(group_chat_id, [
+        ...existingContributions,
+        contribution_record,
+      ]);
+
+      // Update treasury records
+      const treasury_record = treasury_records.get(group_chat_id) || [];
+      const tokenIndex = treasury_record.findIndex(
+        (record) => record.token === token
+      );
+
+      if (tokenIndex === -1) {
+        const new_treasury_record: TreasuryRecord = {
+          token: token,
+          amount: amount,
+          timestamp: BigInt(Date.now()),
+        };
+        treasury_record.push(new_treasury_record);
+      } else {
+        treasury_record[tokenIndex].amount += amount;
+        treasury_record[tokenIndex].timestamp = BigInt(Date.now());
+      }
+      treasury_records.set(group_chat_id, treasury_record);
+
+      // Calculate and update room's share relative to all groups
+      // This requires calculating total contributions across all rooms
+      let totalAllRoomsContribution = 0;
+      for (const [roomId, investmentRecord] of room_investment_records) {
+        totalAllRoomsContribution += investmentRecord.amount;
+      }
+
+      const roomSharePercentage =
+        totalAllRoomsContribution === 0
+          ? 0
+          : room_investment_record.amount / totalAllRoomsContribution;
+      room_share_record.set(group_chat_id, roomSharePercentage);
+
+      // Send notification to room admin about the contribution
+      this.send_notification(
+        `New contribution of ${amount} ${token} received from ${user.username}`,
+        "system",
+        "New Contribution",
+        room.admin,
+        []
+      );
+
+      log("Contribution processed successfully", {
+        group_chat_id,
+        contributor: contributor.toString(),
+        amount,
+        token,
+        newFeeShare,
+        roomSharePercentage,
+      });
+
+      return true;
+    } catch (error) {
+      log("Error processing contribution", {
+        error,
+        group_chat_id,
+        contributor: contributor.toString(),
+        amount,
+      });
+      return false;
+    }
   }
 
   @query([IDL.Text], IDL.Bool)

@@ -34,7 +34,7 @@ function GroupItem({
         <img
           src={profileImage || dummy}
           alt="dummy"
-          className="w-14 h-14 md:w-12 md:h-12 rounded-full object-cover"
+          className="w-14 h-14 md:w-12 md:h-12 rounded-full object-cover border border-gray-200"
         />
         <div className="flex flex-col">
           <h1 className="text-gray-700 text-sm font-karla-semi-bold">{name}</h1>
