@@ -58,7 +58,7 @@ function GroupProfile() {
           <Button
             variant="ghost"
             className="bg-[#e8492a] hover:bg-[#e8492a]/90 rounded-full w-1/2 md:w-1/4"
-            onClick={() => requestTransfer(100000000, agent)}
+            onClick={() => requestTransfer(100000, agent)}
             disabled={isPending}
           >
             {!isPending && (

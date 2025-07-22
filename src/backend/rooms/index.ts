@@ -621,21 +621,6 @@ export class GroupChatService {
     return token;
   }
 
-  @query([IDL.Principal], IDL.Vec(MemberContributionRecord))
-  get_member_contribution_records(
-    member: Principal
-  ): MemberContributionRecord[] {
-    const memberKey = member.toString();
-    const contributions = member_contribution_records.get(memberKey) || [];
-
-    log("Retrieved member contribution records", {
-      member: memberKey,
-      totalContributions: contributions.length,
-    });
-
-    return contributions;
-  }
-
   @query([IDL.Principal], IDL.Int)
   get_member_total_contributions(member: Principal): bigint {
     const memberKey = member.toString();
