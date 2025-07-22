@@ -46,11 +46,11 @@ function GroupTreasury() {
                   Loading...
                 </span>
               ) : (
-                `$${roomInvestmentRecord.amount * price}`
+                `$${Number(roomInvestmentRecord.amount) * price}`
               )}
             </h1>
             <h1 className="text-sm text-gray-500 font-karla">
-              {roomInvestmentRecord.amount} {roomInvestmentRecord.token}
+              {Number(roomInvestmentRecord.amount)} {roomInvestmentRecord.token}
             </h1>
           </div>
         )}

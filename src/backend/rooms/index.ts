@@ -10,9 +10,11 @@ import { IDL, Principal, query, update } from "azle";
 import {
   chat_rooms,
   group_messages,
+  member_contribution_records,
   member_room_share_record,
   room_contribution_records,
   room_investment_records,
+  room_share_record,
   treasury_records,
   users,
 } from "../state";
@@ -21,11 +23,18 @@ import {
   generate_message_id,
   generate_notification_id,
   log,
+  toBigInt,
+  fromBigInt,
+  addBigInt,
+  calculateFeeShare,
+  isPositiveBigInt,
+  usdToBigInt,
 } from "../utils";
 import {
   ChatMessage,
   ChatRoom,
   Investor,
+  MemberContributionRecord,
   Notification,
   InvestmentRecord,
   TreasuryRecord,
@@ -89,23 +98,23 @@ export class GroupChatService {
       profileImage: profile_image,
       admin: Principal.fromText(created_by),
       members: [Principal.fromText(created_by)],
-      treasury: { token: treasury_token, amount: 0 },
+      treasury: { token: treasury_token, amount: BigInt(0) },
       investors: [],
       contributionCycle: contribution_cycle,
       investmentCycle: investment_cycle,
-      investedAmount: 0,
-      maxContribution: max_contribution,
+      investedAmount: BigInt(0),
+      maxContribution: toBigInt(max_contribution),
       createdAt: BigInt(Date.now()),
       messages: [],
       nextContributionDate: next_contribution_date,
       nextInvestmentDate: next_investment_date,
-      minimumAccountBalance: 0,
+      minimumAccountBalance: BigInt(0),
     };
     chat_rooms.set(new_chat_room.id, new_chat_room);
     user.chatRooms.push(new_chat_room.id);
     room_investment_records.set(new_chat_room.id, {
       token: treasury_token,
-      amount: 0,
+      amount: BigInt(0),
       updatedAt: BigInt(Date.now()),
     });
     this.send_notification(
@@ -292,91 +301,237 @@ export class GroupChatService {
     return true;
   }
 
-  @update([IDL.Text, IDL.Float64, IDL.Text, IDL.Principal], IDL.Bool)
+  @update([IDL.Text, IDL.Int, IDL.Text, IDL.Principal], IDL.Bool)
   async contribute_to_chat_room(
     group_chat_id: string,
-    amount: number,
+    amount: bigint,
     token: string,
     contributor: Principal
   ): Promise<boolean> {
-    // we need to update the room_share_record, member_room_share_recordx,  room_contribution_recordsx
-    // room_investment_recordsx,
-    const room = chat_rooms.get(group_chat_id);
-    if (!room) {
-      log("Chat room not found", { group_chat_id });
-      return false;
-    }
+    try {
+      // Input validation
+      if (!isPositiveBigInt(amount)) {
+        log("Invalid contribution amount", {
+          amount: amount.toString(),
+          group_chat_id,
+        });
+        return false;
+      }
 
-    const user = users.get(contributor.toString());
-    if (!user) {
-      log(
-        "The user contributing is not on the platform",
-        contributor.toString()
-      );
-      return false;
-    }
+      const room = chat_rooms.get(group_chat_id);
+      if (!room) {
+        log("Chat room not found", { group_chat_id });
+        return false;
+      }
 
-    let feeShare = 0;
-    if (room.investors.length === 0) {
-      feeShare = 1; // 100% if first investor
-    } else {
-      const total_amount = room.investors
+      const user = users.get(contributor.toString());
+      if (!user) {
+        log(
+          "The user contributing is not on the platform",
+          contributor.toString()
+        );
+        return false;
+      }
+
+      // Check if user is a member of the room
+      if (!room.members.includes(contributor)) {
+        log("User is not a member of this room", {
+          contributor: contributor.toString(),
+          group_chat_id,
+        });
+        return false;
+      }
+
+      // Check contribution limits
+      if (room.maxContribution > BigInt(0) && amount > room.maxContribution) {
+        log("Contribution exceeds maximum allowed", {
+          amount: amount.toString(),
+          maxContribution: room.maxContribution.toString(),
+        });
+        return false;
+      }
+
+      // Get conversion rate for USD calculation
+      const conversionRate = await this.get_conversion_rate(token);
+      if (conversionRate <= 0) {
+        log("Invalid conversion rate", { token, conversionRate });
+        return false;
+      }
+
+      // Calculate total amount before this contribution
+      const totalAmountBefore = room.investors
         .map((investor) => investor.amountInvested)
-        .reduce((a, b) => a + b, 0);
-      feeShare = total_amount === 0 ? 1 : amount / (total_amount + amount);
-    }
+        .reduce((a, b) => addBigInt(a, b), BigInt(0));
 
-    const investor: Investor = {
-      principalId: contributor,
-      amountInvested: amount,
-      feeShare: feeShare,
-    };
-    const conversionRate = await this.get_conversion_rate(token);
-    const contribution_record: ContributionRecord = {
-      contributor: contributor,
-      roomId: group_chat_id,
-      amount: amount,
-      amountInUSD: amount * conversionRate,
-      token: token,
-      timestamp: BigInt(Date.now()),
-    };
-    // update the room's investors
-    room.investors.push(investor);
-    // room investment record
-    const room_investment_record = room_investment_records.get(group_chat_id);
-    if (!room_investment_record) {
-      log("Room investment record not found", { group_chat_id });
-      return false;
-    }
-    room_investment_record.amount += amount;
-    room_investment_record.updatedAt = BigInt(Date.now());
-    // update a member's share of the room -> member_room_share_record
-    member_room_share_record.set(contributor.toString(), feeShare);
-    // update the room's contribution records -> room_contribution_records
-    room_contribution_records.set(group_chat_id, [
-      ...(room_contribution_records.get(group_chat_id) || []),
-      contribution_record,
-    ]);
+      // Check if this user already has an investment in this room
+      const existingInvestorIndex = room.investors.findIndex(
+        (investor) => investor.principalId.toString() === contributor.toString()
+      );
 
-    const treasury_record = treasury_records.get(group_chat_id) || [];
-    const tokenIndex = treasury_record.findIndex(
-      (record) => record.token === token
-    );
+      let newTotalAmount: bigint;
+      let newFeeShare: bigint;
 
-    if (tokenIndex === -1) {
-      const new_treasury_record: TreasuryRecord = {
-        token: token,
+      if (existingInvestorIndex !== -1) {
+        // User already has an investment - update their amount
+        const existingInvestor = room.investors[existingInvestorIndex];
+        const newAmount = addBigInt(existingInvestor.amountInvested, amount);
+        newTotalAmount = addBigInt(totalAmountBefore, amount);
+        newFeeShare = calculateFeeShare(newAmount, newTotalAmount);
+
+        // Update existing investor
+        room.investors[existingInvestorIndex].amountInvested = newAmount;
+        room.investors[existingInvestorIndex].feeShare = newFeeShare;
+      } else {
+        // New investor
+        newTotalAmount = addBigInt(totalAmountBefore, amount);
+        newFeeShare = calculateFeeShare(amount, newTotalAmount);
+
+        const investor: Investor = {
+          principalId: contributor,
+          amountInvested: amount,
+          feeShare: newFeeShare,
+        };
+        room.investors.push(investor);
+      }
+
+      // Recalculate ALL investors' fee shares based on new total
+      room.investors.forEach((investor) => {
+        investor.feeShare = calculateFeeShare(
+          investor.amountInvested,
+          newTotalAmount
+        );
+      });
+
+      // Create contribution record
+      const contribution_record: ContributionRecord = {
+        contributor: contributor,
+        roomId: group_chat_id,
         amount: amount,
+        amountInUSD: usdToBigInt(fromBigInt(amount) * conversionRate),
+        token: token,
         timestamp: BigInt(Date.now()),
       };
-      treasury_record.push(new_treasury_record);
-    } else {
-      treasury_record[tokenIndex].amount += amount;
-      treasury_record[tokenIndex].timestamp = BigInt(Date.now());
-    }
-    treasury_records.set(group_chat_id, treasury_record);
 
-    return true;
+      // Update room investment record
+      const room_investment_record = room_investment_records.get(group_chat_id);
+      if (!room_investment_record) {
+        log("Room investment record not found", { group_chat_id });
+        return false;
+      }
+      room_investment_record.amount = addBigInt(
+        room_investment_record.amount,
+        amount
+      );
+      room_investment_record.updatedAt = BigInt(Date.now());
+
+      // Update member's share of the room with unique key (userId_roomId)
+      const memberRoomKey = `${contributor.toString()}_${group_chat_id}`;
+      member_room_share_record.set(
+        memberRoomKey,
+        fromBigInt(newFeeShare) / 10000
+      ); // Convert basis points to decimal
+
+      // Update room's contribution records
+      const existingContributions =
+        room_contribution_records.get(group_chat_id) || [];
+      room_contribution_records.set(group_chat_id, [
+        ...existingContributions,
+        contribution_record,
+      ]);
+
+      // Update member's contribution records across all rooms
+      const memberKey = contributor.toString();
+      const existingMemberContributions =
+        member_contribution_records.get(memberKey) || [];
+      const memberContributionRecord: MemberContributionRecord = {
+        roomId: group_chat_id,
+        room: room.name,
+        amount: amount,
+        amountInUSD: contribution_record.amountInUSD,
+        token: token,
+        timestamp: BigInt(Date.now()),
+      };
+      member_contribution_records.set(memberKey, [
+        ...existingMemberContributions,
+        memberContributionRecord,
+      ]);
+
+      // Update treasury records
+      const treasury_record = treasury_records.get(group_chat_id) || [];
+      const tokenIndex = treasury_record.findIndex(
+        (record) => record.token === token
+      );
+
+      if (tokenIndex === -1) {
+        const new_treasury_record: TreasuryRecord = {
+          token: token,
+          amount: amount,
+          timestamp: BigInt(Date.now()),
+        };
+        treasury_record.push(new_treasury_record);
+      } else {
+        treasury_record[tokenIndex].amount = addBigInt(
+          treasury_record[tokenIndex].amount,
+          amount
+        );
+        treasury_record[tokenIndex].timestamp = BigInt(Date.now());
+      }
+      treasury_records.set(group_chat_id, treasury_record);
+
+      // Calculate and update room's share relative to all groups
+      // This requires calculating total contributions across all rooms
+      let totalAllRoomsContribution = BigInt(0);
+      for (const [roomId, investmentRecord] of room_investment_records) {
+        totalAllRoomsContribution = addBigInt(
+          totalAllRoomsContribution,
+          investmentRecord.amount
+        );
+      }
+
+      const roomSharePercentage =
+        totalAllRoomsContribution === BigInt(0)
+          ? 0
+          : fromBigInt(room_investment_record.amount) /
+            fromBigInt(totalAllRoomsContribution);
+      room_share_record.set(group_chat_id, roomSharePercentage);
+
+      // Send notification to room admin about the contribution
+      this.send_notification(
+        `New contribution of ${fromBigInt(amount)} ${token} received from ${
+          user.username
+        }`,
+        "system",
+        "New Contribution",
+        room.admin,
+        []
+      );
+
+      // Calculate member's total contributions across all rooms for logging
+      const memberTotalContributions =
+        member_contribution_records.get(contributor.toString())?.length || 0;
+
+      log("Contribution processed successfully", {
+        group_chat_id,
+        contributor: contributor.toString(),
+        amount: amount.toString(),
+        token,
+        newFeeShare: fromBigInt(newFeeShare) / 10000,
+        roomSharePercentage,
+        memberTotalContributions,
+        memberTotalRooms:
+          member_contribution_records.get(contributor.toString())?.length || 0,
+      });
+
+      return true;
+    } catch (error) {
+      log("Error processing contribution", {
+        error,
+        group_chat_id,
+        contributor: contributor.toString(),
+        amount: amount.toString(),
+      });
+      return false;
+    }
   }
 
   @query([IDL.Text], IDL.Bool)
@@ -464,5 +619,41 @@ export class GroupChatService {
       return token.slice(2);
     }
     return token;
+  }
+
+  @query([IDL.Principal], IDL.Int)
+  get_member_total_contributions(member: Principal): bigint {
+    const memberKey = member.toString();
+    const contributions = member_contribution_records.get(memberKey) || [];
+
+    const totalAmount = contributions.reduce((total, record) => {
+      return addBigInt(total, record.amount);
+    }, BigInt(0));
+
+    log("Calculated member total contributions", {
+      member: memberKey,
+      totalAmount: totalAmount.toString(),
+      contributionCount: contributions.length,
+    });
+
+    return totalAmount;
+  }
+
+  @query([IDL.Principal], IDL.Int)
+  get_member_total_contributions_usd(member: Principal): bigint {
+    const memberKey = member.toString();
+    const contributions = member_contribution_records.get(memberKey) || [];
+
+    const totalUSD = contributions.reduce((total, record) => {
+      return addBigInt(total, record.amountInUSD);
+    }, BigInt(0));
+
+    log("Calculated member total USD contributions", {
+      member: memberKey,
+      totalUSD: totalUSD.toString(),
+      contributionCount: contributions.length,
+    });
+
+    return totalUSD;
   }
 }

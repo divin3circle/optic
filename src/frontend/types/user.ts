@@ -61,8 +61,8 @@ export type ChatMessage = {
 
 export type Investor = {
   principalId: Principal;
-  amountInvested: number;
-  feeShare: number;
+  amountInvested: bigint;
+  feeShare: bigint;
 };
 
 export type ChatRoom = {
@@ -72,17 +72,17 @@ export type ChatRoom = {
   profileImage: string;
   admin: Principal;
   members: Principal[];
-  treasury: { token: string; amount: number };
+  treasury: { token: string; amount: bigint };
   investors: Investor[];
   contributionCycle: "daily" | "weekly" | "monthly" | string;
   investmentCycle: "weekly" | "monthly" | "yearly" | string;
-  investedAmount: number;
-  maxContribution: number;
+  investedAmount: bigint;
+  maxContribution: bigint;
   createdAt: bigint;
   messages: string[];
   nextContributionDate: bigint;
   nextInvestmentDate: bigint;
-  minimumAccountBalance: number;
+  minimumAccountBalance: bigint;
 };
 
 import message from "../assets/icons/newmessage.png";

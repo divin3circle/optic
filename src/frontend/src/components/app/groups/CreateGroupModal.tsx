@@ -31,6 +31,7 @@ import { backend } from "../../../../utils";
 import { LoadingSmall } from "@/components/ui/Loading";
 import useUser from "../../../../store/user";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -60,6 +61,7 @@ function CreateGroupModal({
 }) {
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useUser();
+  const queryClient = useQueryClient();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -108,6 +110,8 @@ function CreateGroupModal({
       );
       if (isCreated) {
         toast.success("Group created successfully");
+        // invalidate the groups query
+        queryClient.invalidateQueries({ queryKey: ["groupChatRooms"] });
         setIsCreateRoomModalOpen(false);
       } else {
         toast.error("Failed to create group");

@@ -75,7 +75,7 @@ function NotificationCard({ notification }: { notification: Notification }) {
         <h1 className="text-primary text-lg font-karla-bold">
           {notification.title}
         </h1>
-        <p className="text-gray-500 text-sm font-karla">
+        <p className="text-gray-500 text-sm font-karla w-[80%] md:w-auto">
           {notification.message}
         </p>
         <p className="text-gray-500 text-xs font-karla ">

@@ -10,7 +10,6 @@ function GroupHeader() {
   const { setSelectedGroupChatId, groupHeaderProps, setViewingGroupProfile } =
     useChatStore();
   const [inviteMemberModalOpen, setInviteMemberModalOpen] = useState(false);
-  console.log(inviteMemberModalOpen);
 
   return (
     <motion.div

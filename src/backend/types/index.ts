@@ -10,41 +10,57 @@ import { IDL, Principal } from "azle";
 
 // Treasury Record
 export const TreasuryRecord = IDL.Record({
-  amount: IDL.Float64,
+  amount: IDL.Int, // Changed from IDL.Float64 to IDL.Int for precision
   token: IDL.Text,
   timestamp: IDL.Int,
 });
 
 export type TreasuryRecord = {
-  amount: number;
+  amount: bigint; // Changed from number to bigint
   token: string;
   timestamp: bigint;
 };
 
 export const InvestmentRecord = IDL.Record({
   token: IDL.Text,
-  amount: IDL.Float64,
+  amount: IDL.Int, // Changed from IDL.Float64 to IDL.Int for precision
   updatedAt: IDL.Int,
 });
 export type InvestmentRecord = {
   token: string;
-  amount: number;
+  amount: bigint; // Changed from number to bigint
   updatedAt: bigint;
 };
 
 export const ContributionRecord = IDL.Record({
   roomId: IDL.Text,
   contributor: IDL.Principal,
-  amount: IDL.Float64,
-  amountInUSD: IDL.Float64,
+  amount: IDL.Int, // Changed from IDL.Float64 to IDL.Int for precision
+  amountInUSD: IDL.Int, // Changed from IDL.Float64 to IDL.Int for precision
   token: IDL.Text,
   timestamp: IDL.Int,
 });
 export type ContributionRecord = {
   roomId: string;
   contributor: Principal;
-  amount: number;
-  amountInUSD: number;
+  amount: bigint; // Changed from number to bigint
+  amountInUSD: bigint; // Changed from number to bigint
+  token: string;
+  timestamp: bigint;
+};
+export const MemberContributionRecord = IDL.Record({
+  roomId: IDL.Text,
+  room: IDL.Text,
+  amount: IDL.Int, // Changed from IDL.Float64 to IDL.Int for precision
+  amountInUSD: IDL.Int, // Changed from IDL.Float64 to IDL.Int for precision
+  token: IDL.Text,
+  timestamp: IDL.Int,
+});
+export type MemberContributionRecord = {
+  roomId: string;
+  room: string;
+  amount: bigint; // Changed from number to bigint
+  amountInUSD: bigint; // Changed from number to bigint
   token: string;
   timestamp: bigint;
 };
@@ -52,13 +68,13 @@ export type ContributionRecord = {
 // Investors
 export const Investor = IDL.Record({
   principalId: IDL.Principal,
-  amountInvested: IDL.Float64,
-  feeShare: IDL.Float64,
+  amountInvested: IDL.Int, // Changed from IDL.Float64 to IDL.Int for precision
+  feeShare: IDL.Int, // Changed from IDL.Float64 to IDL.Int for precision (will store as basis points * 10000)
 });
 export type Investor = {
   principalId: Principal;
-  amountInvested: number;
-  feeShare: number;
+  amountInvested: bigint; // Changed from number to bigint
+  feeShare: bigint; // Changed from number to bigint (basis points * 10000 for precision)
 };
 
 //Reply
@@ -209,25 +225,25 @@ export const ChatRoom = IDL.Record({
   members: IDL.Vec(IDL.Principal),
   treasury: IDL.Record({
     token: IDL.Text,
-    amount: IDL.Float64,
+    amount: IDL.Int, // Changed from IDL.Float64 to IDL.Int for precision
   }),
   investors: IDL.Vec(
     // list of investors
     IDL.Record({
       principalId: IDL.Principal,
-      amountInvested: IDL.Float64,
-      feeShare: IDL.Float32,
+      amountInvested: IDL.Int, // Changed from IDL.Float64 to IDL.Int for precision
+      feeShare: IDL.Int, // Changed from IDL.Float32 to IDL.Int for precision (basis points * 10000)
     })
   ),
   contributionCycle: IDL.Text, // "daily" | "weekly" | "monthly"
   investmentCycle: IDL.Text, // How long will each investment take: "7 days" | "30 days"
-  investedAmount: IDL.Float64,
-  maxContribution: IDL.Float64,
+  investedAmount: IDL.Int, // Changed from IDL.Float64 to IDL.Int for precision
+  maxContribution: IDL.Int, // Changed from IDL.Float64 to IDL.Int for precision
   createdAt: IDL.Int,
   messages: IDL.Vec(IDL.Text),
   nextContributionDate: IDL.Int,
   nextInvestmentDate: IDL.Int,
-  minimumAccountBalance: IDL.Float64,
+  minimumAccountBalance: IDL.Int, // Changed from IDL.Float64 to IDL.Int for precision
 });
 export type ChatRoom = {
   id: string;
@@ -236,30 +252,30 @@ export type ChatRoom = {
   profileImage: string;
   admin: Principal;
   members: Principal[];
-  treasury: { token: string; amount: number };
+  treasury: { token: string; amount: bigint }; // Changed from number to bigint
   investors: Investor[];
   contributionCycle: "daily" | "weekly" | "monthly";
   investmentCycle: "weekly" | "monthly" | "yearly";
-  investedAmount: number;
-  maxContribution: number;
+  investedAmount: bigint; // Changed from number to bigint
+  maxContribution: bigint; // Changed from number to bigint
   createdAt: bigint;
   messages: string[];
   nextContributionDate: bigint;
   nextInvestmentDate: bigint;
-  minimumAccountBalance: number;
+  minimumAccountBalance: bigint; // Changed from number to bigint
 };
 
 // ContributionRecord
 export const Contribution = IDL.Record({
   roomId: IDL.Text,
   contributor: IDL.Principal,
-  amount: IDL.Float64,
+  amount: IDL.Int, // Changed from IDL.Float64 to IDL.Int for precision
   timestamp: IDL.Int,
 });
 export type Contribution = {
   roomId: string;
   contributor: Principal;
-  amount: number;
+  amount: bigint; // Changed from number to bigint
   timestamp: bigint;
 };
 
