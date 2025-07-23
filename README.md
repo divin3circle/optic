@@ -277,7 +277,7 @@ dfx deploy && cd src/frontend
 pnpm run dev
 ```
 
-4. Follow guide [here()] to set up Optic agent
+4. Follow guide [here](https://github.com/divin3circle/optic_agent) to set up Optic agent
 
 ```bash
 # optic agent needs to be deployed on the playground to avoid cross subnet calls errors
