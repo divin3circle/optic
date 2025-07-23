@@ -109,11 +109,6 @@ graph TB
     Storage -.->|Contribution Records| DeFi
     DeFi -.->|User Data| Storage
 
-    %% Styling
-    classDef frontend fill:#e1f5fe
-    classDef canister fill:#f3e5f5
-    classDef external fill:#fff3e0
-    classDef storage fill:#e8f5e8
 
     class UI,Plug frontend
     class Auth,Chat,User,Storage,DeFi,Swap,Pool,Treasury canister
