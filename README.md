@@ -3,7 +3,9 @@
 [![Internet Computer](https://img.shields.io/badge/Internet%20Computer-Protocol-blue?logo=internet-computer&logoColor=white)](https://internetcomputer.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB)](https://reactjs.org/)
-[![Azle](https://img.shields.io/badge/Azle-B## 💰 Revenue Model
+![Azle](https://img.shields.io/badge/Azle-B)
+
+## 💰 Revenue Model
 
 **OPTIC** employs a sustainable, value-aligned revenue model that grows with platform usage:
 
@@ -32,7 +34,7 @@
 - **Third-party integrations** and API access
 - **NFT marketplace** for room achievements and badges
 
-*All fees are transparent, competitive, and designed to sustain long-term platform development while maximizing user value.*green)](https://demergent-labs.github.io/azle/)
+*All fees are transparent, competitive, and designed to sustain long-term platform development while maximizing user value.[green)](https://demergent-labs.github.io/azle/)
 [![Motoko](https://img.shields.io/badge/Motoko-Agent-red)](https://internetcomputer.org/docs/current/motoko/main/motoko)
 
 > **A fully on-chain chat application that redefines what Web3 messaging should look like - built on the Internet Computer blockchain.**
