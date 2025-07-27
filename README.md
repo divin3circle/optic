@@ -3,7 +3,8 @@
 [![Internet Computer](https://img.shields.io/badge/Internet%20Computer-Protocol-blue?logo=internet-computer&logoColor=white)](https://internetcomputer.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB)](https://reactjs.org/)
-![Azle](https://img.shields.io/badge/Azle-B)
+[![Azle](https://img.shields.io/badge/Azle-Framework-green)](https://demergent-labs.github.io/azle/)
+[![Motoko](https://img.shields.io/badge/Motoko-Agent-red)](https://internetcomputer.org/docs/current/motoko/main/motoko)
 
 ## 💰 Revenue Model
 
@@ -34,8 +35,7 @@
 - **Third-party integrations** and API access
 - **NFT marketplace** for room achievements and badges
 
-*All fees are transparent, competitive, and designed to sustain long-term platform development while maximizing user value.[green)](https://demergent-labs.github.io/azle/)
-[![Motoko](https://img.shields.io/badge/Motoko-Agent-red)](https://internetcomputer.org/docs/current/motoko/main/motoko)
+All fees are transparent, competitive, and designed to sustain long-term platform development while maximizing user value.
 
 > **A fully on-chain chat application that redefines what Web3 messaging should look like - built on the Internet Computer blockchain.**
 
@@ -372,8 +372,9 @@ Get **OPTIC** running locally in just a few minutes!
 
 Before you begin, ensure you have the following installed:
 
-- **Node.js** (v20 or higher) - [Download here](https://nodejs.org/)
-- **DFX SDK** (Internet Computer SDK) - [Installation Guide](https://internetcomputer.org/docs/building-apps/getting-started/install)
+- **Node.js** (v20.0.0 or higher) - [Download LTS version](https://nodejs.org/)
+- **Git** (v2.40+) for version control
+- **Internet Computer SDK (DFX)** (v0.15.0+) - [Installation Guide](https://internetcomputer.org/docs/building-apps/getting-started/install)
 - **pnpm** (Package manager) - Install with `npm install -g pnpm`
 - **Plug Wallet** (Browser extension) - [Install from here](https://plugwallet.ooo/)
 
